@@ -48,7 +48,8 @@ def main() -> int:
         calibration.raise_()
         calibration.activateWindow()
 
-    icons = {"watching": _dot_icon("#2e9d4f"), "absent": _dot_icon("#8a8a8a"), "unavailable": _dot_icon("#d9822b")}
+    icons = {"watching": _dot_icon("#2e9d4f"), "absent": _dot_icon("#8a8a8a"), "unavailable": _dot_icon("#d9822b"),
+             "stale": _dot_icon("#c62828")}
     tray = QSystemTrayIcon()
     menu = QMenu()
     recalibrate_action = QAction("Recalibrate", menu)
@@ -60,7 +61,8 @@ def main() -> int:
     tray.setContextMenu(menu)
 
     def show_state() -> None:
-        icon = {MonitorState.ABSENT: "absent", MonitorState.CAMERA_UNAVAILABLE: "unavailable"}.get(monitor.state, "watching")
+        icon = {MonitorState.ABSENT: "absent", MonitorState.CAMERA_UNAVAILABLE: "unavailable",
+                MonitorState.STALE_BASELINE: "stale"}.get(monitor.state, "watching")
         tray.setIcon(icons[icon])
         tray.setToolTip(f"Holdup: {monitor.state.value}")
 
@@ -75,6 +77,9 @@ def main() -> int:
             monitor.observe(CameraUnavailable() if frame is None else detector.detect(frame))
             mirror.follow(monitor.mirror_visible)
             show_state()
+            if monitor.take_recalibration_prompt():
+                tray.showMessage("Holdup: camera view changed",
+                                 "Your Baseline no longer fits. Choose Recalibrate in the tray menu to resume watching.")
         if frame is None:
             return
         for window in (mirror, calibration):

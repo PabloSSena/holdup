@@ -1,9 +1,10 @@
 from fakes import FakeClock
 import pytest
-from landmarks import leaning_forward, leaning_sideways, tilting_head, upright
+from landmarks import leaning_forward, leaning_sideways, tilting_head, upright, upright_points
 
-from holdup.observation import CameraUnavailable, NoPerson
+from holdup.observation import CameraUnavailable, NoPerson, UserSeen
 from holdup.posture_monitor import MonitorState, PostureMonitor
+from holdup.store import Store
 
 
 def test_user_sitting_down_is_watched_and_leaving_makes_them_absent():
@@ -363,3 +364,124 @@ def test_a_calibration_lost_to_the_camera_keeps_the_previous_baseline():
     monitor.observe(upright())
 
     assert monitor.state is MonitorState.GOOD_POSTURE
+
+
+def take_prompts(monitor, clock, observation, seconds):
+    """Like sit(), counting the recalibration prompts the Posture Monitor raises meanwhile."""
+    prompts = 0
+    for _ in range(round(seconds / 0.4)):
+        monitor.observe(observation)
+        prompts += monitor.take_recalibration_prompt()
+        clock.advance(0.4)
+    return prompts
+
+
+moved_back = UserSeen(upright_points(scale=0.6))  # the camera or chair moved: the User looks much smaller
+moved_aside = UserSeen(tuple(p._replace(x=p.x + 0.3) for p in upright_points()))  # the camera turned
+
+
+@pytest.mark.parametrize("view", [moved_back, moved_aside], ids=["smaller", "shifted"])
+def test_a_sustained_change_of_camera_view_makes_the_baseline_stale_with_exactly_one_prompt(view):
+    clock = FakeClock()
+    monitor = calibrated(clock)
+
+    prompts = take_prompts(monitor, clock, view, 120)
+
+    assert monitor.state is MonitorState.STALE_BASELINE
+    assert prompts == 1
+
+
+@pytest.mark.parametrize("lean", [leaning_forward(), leaning_forward(0.6), leaning_sideways("left", 25)], ids=["forward", "far-forward", "sideways"])
+def test_a_long_ordinary_lean_is_bad_posture_not_a_stale_baseline(lean):
+    clock = FakeClock()
+    monitor = calibrated(clock)
+
+    prompts = take_prompts(monitor, clock, lean, 120)
+
+    assert monitor.state in (MonitorState.FORWARD_LEAN, MonitorState.SIDE_LEAN)
+    assert monitor.mirror_visible
+    assert prompts == 0
+
+
+def test_a_brief_change_of_view_does_not_make_the_baseline_stale():
+    clock = FakeClock()
+    monitor = calibrated(clock)
+
+    prompts = take_prompts(monitor, clock, moved_back, 20)
+    prompts += take_prompts(monitor, clock, upright(), 1)
+    prompts += take_prompts(monitor, clock, moved_back, 20)
+
+    assert monitor.state is MonitorState.GOOD_POSTURE
+    assert prompts == 0
+
+
+def test_a_stale_baseline_hides_the_mirror_and_stops_judging_posture():
+    clock = FakeClock()
+    monitor = calibrated(clock)
+    sit(monitor, clock, leaning_forward(), 6)
+    assert monitor.mirror_visible
+
+    sit(monitor, clock, moved_back, 60)
+    sit(monitor, clock, leaning_forward(), 30)
+
+    assert monitor.state is MonitorState.STALE_BASELINE
+    assert not monitor.mirror_visible
+
+
+def stale(clock, store=None):
+    monitor = PostureMonitor(clock=clock, store=store)
+    monitor.begin_calibration()
+    sit(monitor, clock, upright(), 6)
+    take_prompts(monitor, clock, moved_back, 60)
+    return monitor
+
+
+def test_recalibrating_in_the_new_view_clears_the_stale_baseline_and_resumes_judging():
+    clock = FakeClock()
+    monitor = stale(clock)
+
+    monitor.begin_calibration()
+    prompts = take_prompts(monitor, clock, moved_back, 6)
+    assert monitor.state is MonitorState.GOOD_POSTURE
+
+    prompts += take_prompts(monitor, clock, moved_back, 120)
+    assert monitor.state is MonitorState.GOOD_POSTURE
+    assert prompts == 0
+    sit(monitor, clock, UserSeen(upright_points(scale=0.6 * 1.3)), 6)  # leaning toward the moved camera
+    assert monitor.state is MonitorState.FORWARD_LEAN
+    assert monitor.mirror_visible
+
+
+def test_a_failed_recalibration_leaves_the_baseline_stale():
+    clock = FakeClock()
+    monitor = stale(clock)
+
+    monitor.begin_calibration()
+    sit(monitor, clock, NoPerson(), 6)
+    monitor.observe(moved_back)
+
+    assert monitor.calibration_failed
+    assert monitor.state is MonitorState.STALE_BASELINE
+
+
+def test_a_stale_baseline_stays_stale_after_a_restart_without_a_second_prompt():
+    clock = FakeClock()
+    store = Store()
+    stale(clock, store)
+
+    restarted = PostureMonitor(clock=clock, store=store)
+    prompts = take_prompts(restarted, clock, upright(), 10)
+
+    assert restarted.state is MonitorState.STALE_BASELINE
+    assert prompts == 0
+
+
+def test_while_the_baseline_is_stale_frames_are_analysed_about_once_a_second():
+    clock = FakeClock()
+    monitor = stale(clock)
+    monitor.observe(moved_back)
+
+    clock.advance(0.9)
+    assert not monitor.analysis_due()
+    clock.advance(0.1)
+    assert monitor.analysis_due()
