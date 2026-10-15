@@ -1,6 +1,6 @@
 """Tray App: the Qt shell that wires the Camera Source, Pose Detector, Posture Monitor and windows together."""
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QAction, QColor, QIcon, QPainter, QPixmap
@@ -48,21 +48,48 @@ def main() -> int:
         calibration.raise_()
         calibration.activateWindow()
 
-    icons = {"watching": _dot_icon("#2e9d4f"), "absent": _dot_icon("#8a8a8a"), "unavailable": _dot_icon("#d9822b")}
+    icons = {
+        "watching": _dot_icon("#2e9d4f"),
+        "absent": _dot_icon("#8a8a8a"),
+        "unavailable": _dot_icon("#d9822b"),
+        "paused": _dot_icon("#e0a020"),
+    }
     tray = QSystemTrayIcon()
     menu = QMenu()
     recalibrate_action = QAction("Recalibrate", menu)
     recalibrate_action.triggered.connect(recalibrate)
     menu.addAction(recalibrate_action)
+
+    def pause(duration: timedelta | None) -> None:
+        monitor.pause(duration)
+        mirror.follow(monitor.mirror_visible)
+        show_state()
+
+    def resume() -> None:
+        monitor.resume()
+        show_state()
+
+    pause_actions = []
+    for label, duration in (("Pause for 30 minutes", timedelta(minutes=30)), ("Pause for 1 hour", timedelta(hours=1)), ("Pause until resumed", None)):
+        action = menu.addAction(label)
+        action.triggered.connect(lambda _=False, d=duration: pause(d))
+        pause_actions.append(action)
+    resume_action = menu.addAction("Resume")
+    resume_action.triggered.connect(resume)
+    menu.addSeparator()
     quit_action = QAction("Quit", menu)
     quit_action.triggered.connect(app.quit)
     menu.addAction(quit_action)
     tray.setContextMenu(menu)
 
     def show_state() -> None:
+        paused = monitor.paused
         icon = {MonitorState.ABSENT: "absent", MonitorState.CAMERA_UNAVAILABLE: "unavailable"}.get(monitor.state, "watching")
-        tray.setIcon(icons[icon])
-        tray.setToolTip(f"Holdup: {monitor.state.value}")
+        tray.setIcon(icons["paused" if paused else icon])
+        tray.setToolTip("Holdup: Paused" if paused else f"Holdup: {monitor.state.value}")
+        for action in pause_actions:
+            action.setVisible(not paused)
+        resume_action.setVisible(paused)
 
     def tick() -> None:
         if calibration.isVisible():

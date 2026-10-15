@@ -43,6 +43,20 @@ class PostureMonitor:
         self._calibration_started: datetime | None = None
         self._captured: list[tuple[Landmark, ...]] = []
         self._bad_since: datetime | None = None
+        self._paused_until: datetime | None = None
+
+    def pause(self, duration: timedelta | None = None) -> None:
+        """Pause watching for a duration, or until resume() when None. Hides the Mirror at once."""
+        self._paused_until = self._clock() + duration if duration else datetime.max
+        self.mirror_visible = False
+        self._bad_since = None
+
+    def resume(self) -> None:
+        self._paused_until = None
+
+    @property
+    def paused(self) -> bool:
+        return self._paused_until is not None and self._clock() < self._paused_until
 
     def begin_calibration(self) -> None:
         self._calibration_started = self._clock()
@@ -85,7 +99,7 @@ class PostureMonitor:
             self.state = MonitorState.UNCALIBRATED
         else:
             self.state = MonitorState(classify(self._baseline, observation.landmarks).value)
-        bad = self.state in (MonitorState.FORWARD_LEAN, MonitorState.SIDE_LEAN)
+        bad = self.state in (MonitorState.FORWARD_LEAN, MonitorState.SIDE_LEAN) and not self.paused
         self._bad_since = (self._bad_since or now) if bad else None
         self.mirror_visible = bad and now - self._bad_since >= BAD_POSTURE_DELAY
 
@@ -101,7 +115,7 @@ class PostureMonitor:
         """Whether the next camera frame should be analysed and passed to observe()."""
         if self._last_observed is None:
             return True
-        idle = self.state in (MonitorState.ABSENT, MonitorState.CAMERA_UNAVAILABLE)
+        idle = self.state in (MonitorState.ABSENT, MonitorState.CAMERA_UNAVAILABLE) or self.paused
         interval = IDLE_INTERVAL if idle else WATCHING_INTERVAL
         elapsed = self._clock() - self._last_observed
         return not timedelta(0) <= elapsed < interval
