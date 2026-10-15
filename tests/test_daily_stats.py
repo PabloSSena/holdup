@@ -6,7 +6,8 @@ from fakes import FakeClock
 from landmarks import leaning_forward, leaning_sideways, upright, upright_points
 
 from holdup.observation import CameraUnavailable, NoPerson, UserSeen
-from holdup.posture_monitor import MonitorState, PostureMonitor
+from holdup.posture_classifier import Sensitivity
+from holdup.posture_monitor import DailyStats, MonitorState, PostureMonitor
 from holdup.store import Store
 
 DAY = date(2026, 1, 5)
@@ -169,3 +170,24 @@ def test_a_range_of_days_holds_only_the_days_with_daily_stats(store):
 
     assert sorted(stats) == [DAY, date(2026, 1, 7)]
     assert stats[date(2026, 1, 7)].good_posture == pytest.approx(10)
+
+
+def test_clear_stats_empties_daily_stats_while_the_baseline_and_settings_survive(tmp_path):
+    clock = FakeClock()
+    store = Store(tmp_path / "holdup.db")
+    monitor = calibrated(clock, store)
+    monitor.sensitivity = Sensitivity.HIGH
+    sit(monitor, clock, leaning_forward(), 10)
+    monitor.observe(upright())
+
+    monitor.clear_stats()
+
+    assert monitor.daily_stats(date(2000, 1, 1), date(2100, 1, 1)) == {}
+    assert monitor.today_stats() == DailyStats()
+    store.close()
+    restarted = PostureMonitor(clock=clock, store=Store(tmp_path / "holdup.db"))
+    assert restarted.calibrated
+    assert restarted.sensitivity is Sensitivity.HIGH
+    assert restarted.daily_stats(date(2000, 1, 1), date(2100, 1, 1)) == {}
+    sit(restarted, clock, upright(), 4)
+    assert restarted.state is MonitorState.GOOD_POSTURE  # still judging against the kept Baseline
