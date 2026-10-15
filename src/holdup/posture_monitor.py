@@ -197,6 +197,10 @@ class PostureMonitor:
         today = self._clock().date()
         return self.daily_stats(today, today).get(today, DailyStats())
 
+    def clear_stats(self) -> None:
+        """Clear statistics: all Daily Stats go; the Baseline and settings stay."""
+        self._store.clear_daily_stats()
+
     def _end_calibration(self, succeeded: bool) -> None:
         if succeeded:
             self._baseline = _average(self._captured)

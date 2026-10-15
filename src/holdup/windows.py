@@ -1,12 +1,15 @@
-"""The Mirror and Calibration windows: thin Qt views over the Posture Monitor. Frames are shown, never kept."""
+"""The Mirror, Calibration and Stats windows: thin Qt views over the Posture Monitor. Frames are shown, never kept."""
 import math
+from datetime import date, timedelta
 
 import numpy as np
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QGuiApplication, QImage, QPixmap
-from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtWidgets import (
+    QHBoxLayout, QLabel, QMessageBox, QPushButton, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
+)
 
-from holdup.posture_monitor import MonitorState, PostureMonitor
+from holdup.posture_monitor import DailyStats, MonitorState, PostureMonitor
 
 MIRROR_SIZE = QSize(320, 240)
 CALIBRATION_FEED_SIZE = QSize(480, 360)
@@ -90,3 +93,72 @@ class CalibrationWindow(QWidget):
             self._status.setText("Done: your Baseline is captured. Holdup is now watching your posture.")
         self._retry.setVisible(failed)
         self._close.setVisible(not calibrating)
+
+
+STATS_COLUMNS = ("Good Posture", "Forward Lean", "Side Lean", "Mirror")
+STATS_DAYS = 8  # today and the last 7 days
+
+
+def stats_cells(stats: DailyStats | None) -> list[str]:
+    """One day's row: shares of Watched Time and the Mirror count; a day without Watched Time is empty, not 0%."""
+    if not stats or not stats.watched_time:
+        return [""] * len(STATS_COLUMNS)
+    shares = (stats.good_posture, stats.forward_lean, stats.side_lean)
+    return [f"{round(100 * seconds / stats.watched_time)}%" for seconds in shares] + [str(stats.mirror_count)]
+
+
+class StatsWindow(QWidget):
+    """Today and the last 7 days of Daily Stats, and the Clear statistics button. Re-read on every show."""
+
+    def __init__(self, monitor: PostureMonitor):
+        super().__init__()
+        self._monitor = monitor
+        self.setWindowTitle("Holdup: Stats")
+        self._table = QTableWidget(STATS_DAYS, len(STATS_COLUMNS))
+        self._table.setHorizontalHeaderLabels(STATS_COLUMNS)
+        self._table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self._table.setSelectionMode(QTableWidget.NoSelection)
+        clear = QPushButton("Clear statistics")
+        clear.clicked.connect(self._clear)
+        close = QPushButton("Close")
+        close.clicked.connect(self.close)
+
+        buttons = QHBoxLayout()
+        buttons.addWidget(clear)
+        buttons.addStretch()
+        buttons.addWidget(close)
+        layout = QVBoxLayout(self)
+        layout.addWidget(QLabel("Share of Watched Time in each posture, and how many times the Mirror appeared."))
+        layout.addWidget(self._table)
+        layout.addLayout(buttons)
+        self.refresh()
+
+    def showEvent(self, event) -> None:
+        self.refresh()
+        super().showEvent(event)
+
+    def refresh(self) -> None:
+        last = date.today()  # the tray's monitor clock is datetime.now, so this is the same local day
+        days = [last - timedelta(days=n) for n in range(STATS_DAYS)]
+        stats = self._monitor.daily_stats(days[-1], last)
+        self._table.setVerticalHeaderLabels(["Today"] + [day.strftime("%a %d %b") for day in days[1:]])
+        for row, day in enumerate(days):
+            for column, text in enumerate(stats_cells(stats.get(day))):
+                item = QTableWidgetItem(text)
+                item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                self._table.setItem(row, column, item)
+        self._table.resizeColumnsToContents()
+        frame = 2 * self._table.frameWidth()  # fit all rows and columns, no scrolling
+        self._table.setFixedSize(
+            self._table.verticalHeader().width() + self._table.horizontalHeader().length() + frame,
+            self._table.horizontalHeader().height() + self._table.verticalHeader().length() + frame,
+        )
+
+    def _clear(self) -> None:
+        answer = QMessageBox.question(
+            self, "Clear statistics", "Delete all Daily Stats? Your Baseline and settings are kept.",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No,
+        )
+        if answer == QMessageBox.Yes:
+            self._monitor.clear_stats()
+            self.refresh()

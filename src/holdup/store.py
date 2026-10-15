@@ -52,5 +52,10 @@ class Store:
         )
         return {date.fromisoformat(day): tuple(values) for day, *values in rows}
 
+    def clear_daily_stats(self) -> None:
+        """Delete every day's Daily Stats; the setting table (Baseline, settings) is untouched."""
+        with self._db:
+            self._db.execute("DELETE FROM daily_stats")
+
     def close(self) -> None:
         self._db.close()

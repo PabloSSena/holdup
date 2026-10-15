@@ -13,7 +13,7 @@ from holdup.posture_classifier import Sensitivity
 from holdup.posture_monitor import MonitorState, PostureMonitor
 from holdup.start_with_windows import RunKey, StartWithWindows
 from holdup.store import Store, default_path
-from holdup.windows import CalibrationWindow, MirrorWindow
+from holdup.windows import CalibrationWindow, MirrorWindow, StatsWindow
 
 TICK_MS = 33  # smooth feed while a window shows it; analysis still only runs when the Posture Monitor says it is due
 
@@ -43,6 +43,12 @@ def main() -> int:
     if first_launch:
         monitor.begin_calibration()
     calibration = CalibrationWindow(monitor)
+    stats = StatsWindow(monitor)
+
+    def show_stats() -> None:
+        stats.show()
+        stats.raise_()
+        stats.activateWindow()
 
     def recalibrate() -> None:
         monitor.begin_calibration()
@@ -59,6 +65,7 @@ def main() -> int:
     }
     tray = QSystemTrayIcon()
     menu = QMenu()
+    menu.addAction("Stats").triggered.connect(show_stats)
     recalibrate_action = QAction("Recalibrate", menu)
     recalibrate_action.triggered.connect(recalibrate)
     menu.addAction(recalibrate_action)
