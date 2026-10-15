@@ -5,6 +5,7 @@ from typing import Callable
 
 from holdup.observation import CameraUnavailable, Landmark, NoPerson, Observation, UserSeen
 from holdup.posture_classifier import Posture, classify
+from holdup.store import Store
 
 Clock = Callable[[], datetime]
 
@@ -15,6 +16,8 @@ IDLE_INTERVAL = timedelta(seconds=1.0)
 BAD_POSTURE_DELAY = timedelta(seconds=5)  # Bad Posture must last this long before the Mirror appears
 CALIBRATION_COUNTDOWN = timedelta(seconds=3)
 CALIBRATION_CAPTURE = timedelta(seconds=2)
+
+BASELINE = "baseline"  # Store name of the Baseline landmarks
 
 
 class MonitorState(Enum):
@@ -28,13 +31,15 @@ class MonitorState(Enum):
 
 
 class PostureMonitor:
-    def __init__(self, clock: Clock):
+    def __init__(self, clock: Clock, store: Store | None = None):
         self._clock = clock
+        self._store = store or Store()  # in memory: nothing outlives the monitor
         self.state = MonitorState.ABSENT
         self._last_observed: datetime | None = None
         self.mirror_visible = False
         self.calibration_failed = False
-        self._baseline: tuple[Landmark, ...] | None = None
+        stored = self._store.get(BASELINE)
+        self._baseline: tuple[Landmark, ...] | None = stored and tuple(Landmark(*point) for point in stored)
         self._calibration_started: datetime | None = None
         self._captured: list[tuple[Landmark, ...]] = []
         self._bad_since: datetime | None = None
@@ -46,6 +51,11 @@ class PostureMonitor:
         self.state = MonitorState.CALIBRATING
         self.mirror_visible = False
         self._bad_since = None
+
+    @property
+    def calibrated(self) -> bool:
+        """Whether a Baseline exists, from this run or remembered in the Store."""
+        return self._baseline is not None
 
     def calibration_countdown(self) -> float:
         """Seconds left before the Baseline capture starts (0 while capturing or not calibrating)."""
@@ -82,6 +92,7 @@ class PostureMonitor:
     def _end_calibration(self, succeeded: bool) -> None:
         if succeeded:
             self._baseline = _average(self._captured)
+            self._store.set(BASELINE, self._baseline)
         self.calibration_failed = not succeeded
         self._calibration_started = None
         self._captured = []

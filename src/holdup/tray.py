@@ -10,6 +10,7 @@ from holdup.camera_source import CameraSource
 from holdup.observation import CameraUnavailable
 from holdup.pose_detector import PoseDetector
 from holdup.posture_monitor import MonitorState, PostureMonitor
+from holdup.store import Store, default_path
 from holdup.windows import CalibrationWindow, MirrorWindow
 
 TICK_MS = 33  # smooth feed while a window shows it; analysis still only runs when the Posture Monitor says it is due
@@ -33,15 +34,26 @@ def main() -> int:
 
     camera = CameraSource()
     detector = PoseDetector()
-    monitor = PostureMonitor(clock=datetime.now)
+    store = Store(default_path())
+    monitor = PostureMonitor(clock=datetime.now, store=store)
     mirror = MirrorWindow()
-    # shortcut: the Baseline lives in memory only, so every launch is a first launch; issue 03 persists it.
-    monitor.begin_calibration()
+    first_launch = not monitor.calibrated
+    if first_launch:
+        monitor.begin_calibration()
     calibration = CalibrationWindow(monitor)
+
+    def recalibrate() -> None:
+        monitor.begin_calibration()
+        calibration.show()
+        calibration.raise_()
+        calibration.activateWindow()
 
     icons = {"watching": _dot_icon("#2e9d4f"), "absent": _dot_icon("#8a8a8a"), "unavailable": _dot_icon("#d9822b")}
     tray = QSystemTrayIcon()
     menu = QMenu()
+    recalibrate_action = QAction("Recalibrate", menu)
+    recalibrate_action.triggered.connect(recalibrate)
+    menu.addAction(recalibrate_action)
     quit_action = QAction("Quit", menu)
     quit_action.triggered.connect(app.quit)
     menu.addAction(quit_action)
@@ -72,7 +84,8 @@ def main() -> int:
 
     show_state()
     tray.show()
-    calibration.show()
+    if first_launch:
+        calibration.show()
     # shortcut: camera read and detection run on the Qt thread (~tens of ms at 1-3 fps); move to a worker if the tray stutters.
     timer = QTimer()
     timer.timeout.connect(tick)
@@ -84,3 +97,4 @@ def main() -> int:
         timer.stop()
         detector.close()
         camera.close()
+        store.close()
