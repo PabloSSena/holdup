@@ -1,5 +1,6 @@
 from fakes import FakeClock
-from landmarks import leaning_forward, upright
+import pytest
+from landmarks import leaning_forward, leaning_sideways, tilting_head, upright
 
 from holdup.observation import NoPerson
 from holdup.posture_monitor import MonitorState, PostureMonitor
@@ -222,3 +223,76 @@ def test_recalibrating_hides_the_mirror():
     monitor.begin_calibration()
 
     assert not monitor.mirror_visible
+
+
+@pytest.mark.parametrize("side", ["left", "right"])
+def test_side_lean_to_either_side_shows_the_mirror_after_5_seconds_and_good_posture_hides_it(side):
+    clock = FakeClock()
+    monitor = calibrated(clock)
+
+    sit(monitor, clock, leaning_sideways(side), 4.8)
+    assert monitor.state is MonitorState.SIDE_LEAN
+    assert not monitor.mirror_visible
+    sit(monitor, clock, leaning_sideways(side), 0.8)
+    assert monitor.mirror_visible
+
+    monitor.observe(upright())
+    assert monitor.state is MonitorState.GOOD_POSTURE
+    assert not monitor.mirror_visible
+
+
+def test_switching_from_forward_lean_to_side_lean_at_3_seconds_still_shows_the_mirror_at_5_seconds():
+    clock = FakeClock()
+    monitor = calibrated(clock)
+
+    sit(monitor, clock, leaning_forward(), 3.2)  # lean began at 0 s
+    sit(monitor, clock, leaning_sideways("left"), 1.6)
+    monitor.observe(leaning_sideways("left"))  # at 4.8 s
+    assert not monitor.mirror_visible
+
+    clock.advance(0.2)
+    monitor.observe(leaning_sideways("left"))  # at 5 s
+    assert monitor.state is MonitorState.SIDE_LEAN
+    assert monitor.mirror_visible
+
+
+def test_switching_from_side_lean_to_forward_lean_keeps_the_mirror_up():
+    clock = FakeClock()
+    monitor = calibrated(clock)
+    sit(monitor, clock, leaning_sideways("right"), 5.6)
+
+    monitor.observe(leaning_forward())
+
+    assert monitor.state is MonitorState.FORWARD_LEAN
+    assert monitor.mirror_visible
+
+
+def test_leaning_forward_and_sideways_at_once_counts_as_forward_lean():
+    clock = FakeClock()
+    monitor = calibrated(clock)
+
+    monitor.observe(leaning_sideways("left", pose=leaning_forward()))
+
+    assert monitor.state is MonitorState.FORWARD_LEAN
+
+
+@pytest.mark.parametrize("side", ["left", "right"])
+def test_tilting_only_the_head_counts_as_side_lean(side):
+    clock = FakeClock()
+    monitor = calibrated(clock)
+
+    monitor.observe(tilting_head(side))
+
+    assert monitor.state is MonitorState.SIDE_LEAN
+
+
+def test_calibration_fails_when_the_user_leans_sideways_during_capture():
+    clock = FakeClock()
+    monitor = PostureMonitor(clock=clock)
+
+    monitor.begin_calibration()
+    sit(monitor, clock, upright(), 3.2)
+    sit(monitor, clock, leaning_sideways("right"), 0.8)
+    sit(monitor, clock, upright(), 2)
+
+    assert monitor.calibration_failed

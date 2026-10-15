@@ -1,4 +1,6 @@
 """Synthetic landmark builders: numbers shaped like MediaPipe's 33-point pose."""
+import math
+
 from holdup.observation import Landmark, UserSeen
 
 # A User sitting up straight, roughly centred, head and shoulders filling the upper frame.
@@ -32,3 +34,24 @@ def leaning_forward(amount: float = 0.3) -> UserSeen:
     return UserSeen(tuple(
         p._replace(y=p.y + amount * 0.25) if i in head else p for i, p in enumerate(points)
     ))
+
+
+def leaning_sideways(side: str = "left", degrees: float = 15, pose: UserSeen | None = None) -> UserSeen:
+    """`pose` (upright by default) with the upper body tilted toward the image's `side`, pivoting at the hips."""
+    return UserSeen(_tilted((pose or upright()).landmarks, side, degrees, pivot=(0.50, 0.95), moving=range(33)))
+
+
+def tilting_head(side: str = "left", degrees: float = 15) -> UserSeen:
+    """The upright User with only the head tilted toward the image's `side`, pivoting between the shoulders."""
+    return UserSeen(_tilted(upright_points(), side, degrees, pivot=(0.50, 0.50), moving=range(11)))
+
+
+def _tilted(points, side, degrees, pivot, moving):
+    turn = math.radians(degrees if side == "left" else -degrees)
+    cos, sin = math.cos(turn), math.sin(turn)
+    px, py = pivot
+    return tuple(
+        p._replace(x=px + (p.x - px) * cos + (p.y - py) * sin, y=py - (p.x - px) * sin + (p.y - py) * cos)
+        if i in moving else p
+        for i, p in enumerate(points)
+    )

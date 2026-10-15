@@ -4,7 +4,7 @@ from enum import Enum
 from typing import Callable
 
 from holdup.observation import Landmark, NoPerson, Observation, UserSeen
-from holdup.posture_classifier import leans_forward
+from holdup.posture_classifier import Posture, classify
 
 Clock = Callable[[], datetime]
 
@@ -22,6 +22,7 @@ class MonitorState(Enum):
     CALIBRATING = "Calibrating"
     GOOD_POSTURE = "Good Posture"
     FORWARD_LEAN = "Forward Lean"
+    SIDE_LEAN = "Side Lean"
     ABSENT = "Absent"
 
 
@@ -67,11 +68,9 @@ class PostureMonitor:
             self.state = MonitorState.ABSENT
         elif self._baseline is None:
             self.state = MonitorState.UNCALIBRATED
-        elif leans_forward(self._baseline, observation.landmarks):
-            self.state = MonitorState.FORWARD_LEAN
         else:
-            self.state = MonitorState.GOOD_POSTURE
-        bad = self.state is MonitorState.FORWARD_LEAN
+            self.state = MonitorState(classify(self._baseline, observation.landmarks).value)
+        bad = self.state in (MonitorState.FORWARD_LEAN, MonitorState.SIDE_LEAN)
         self._bad_since = (self._bad_since or now) if bad else None
         self.mirror_visible = bad and now - self._bad_since >= BAD_POSTURE_DELAY
 
@@ -98,4 +97,4 @@ def _average(poses: list[tuple[Landmark, ...]]) -> tuple[Landmark, ...]:
 def _steady(poses: list[tuple[Landmark, ...]]) -> bool:
     """Whether the User held still: no captured pose is as far from the first as a Bad Posture would be."""
     first = poses[0]
-    return not any(leans_forward(first, pose) or leans_forward(pose, first) for pose in poses)
+    return all(classify(first, pose) is classify(pose, first) is Posture.GOOD for pose in poses)
