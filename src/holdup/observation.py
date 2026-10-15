@@ -22,7 +22,12 @@ class NoPerson:
     """Nobody was seen in the frame."""
 
 
-Observation = UserSeen | NoPerson
+@dataclass(frozen=True)
+class CameraUnavailable:
+    """The camera could not be read (unplugged, shutter closed, held by another app): the app cannot see."""
+
+
+Observation = UserSeen | NoPerson | CameraUnavailable
 
 
 def observation_from(people: list[tuple[Landmark, ...]]) -> Observation:
