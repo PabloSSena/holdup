@@ -1,5 +1,6 @@
 """The Posture Monitor: pure logic, no Qt, camera or MediaPipe. Time comes from an injected clock."""
-from datetime import datetime, timedelta
+from dataclasses import dataclass
+from datetime import date, datetime, time, timedelta
 from enum import Enum
 from typing import Callable
 
@@ -19,6 +20,9 @@ CALIBRATION_CAPTURE = timedelta(seconds=2)
 
 BASELINE = "baseline"  # Store name of the Baseline landmarks
 
+# Watched Time between two frames goes to the earlier frame's posture; a longer gap (sleep, hibernate) adds nothing.
+STATS_MAX_GAP = timedelta(seconds=5)
+
 
 class MonitorState(Enum):
     UNCALIBRATED = "Uncalibrated"
@@ -28,6 +32,28 @@ class MonitorState(Enum):
     SIDE_LEAN = "Side Lean"
     ABSENT = "Absent"
     CAMERA_UNAVAILABLE = "Camera Unavailable"
+
+
+# The judging states, by Daily Stats column. Any other state (Absent, Stale, ...) is not Watched Time.
+_STATS_COLUMN = {
+    MonitorState.GOOD_POSTURE: "good_posture",
+    MonitorState.FORWARD_LEAN: "forward_lean",
+    MonitorState.SIDE_LEAN: "side_lean",
+}
+
+
+@dataclass(frozen=True)
+class DailyStats:
+    """One local day: seconds of Watched Time per kind of posture, and how many times the Mirror appeared."""
+
+    good_posture: float = 0.0
+    forward_lean: float = 0.0
+    side_lean: float = 0.0
+    mirror_count: int = 0
+
+    @property
+    def watched_time(self) -> float:
+        return self.good_posture + self.forward_lean + self.side_lean
 
 
 class PostureMonitor:
@@ -44,6 +70,7 @@ class PostureMonitor:
         self._captured: list[tuple[Landmark, ...]] = []
         self._bad_since: datetime | None = None
         self._paused_until: datetime | None = None
+        self._judged_as: str | None = None  # Daily Stats column of the last frame, None when it was not judged
 
     def pause(self, duration: timedelta | None = None) -> None:
         """Pause watching for a duration, or until resume() when None. Hides the Mirror at once."""
@@ -79,7 +106,11 @@ class PostureMonitor:
         return max(left.total_seconds(), 0.0)
 
     def observe(self, observation: Observation) -> None:
+        previous = self._last_observed
         now = self._last_observed = self._clock()
+        if self._judged_as and timedelta(0) < now - previous <= STATS_MAX_GAP:
+            self._add_watched_time(previous, now, self._judged_as)
+        self._judged_as = None
         if self._calibration_started is not None and isinstance(observation, CameraUnavailable):
             self._end_calibration(succeeded=False)  # without frames the countdown would never end
         if self._calibration_started is not None:
@@ -101,7 +132,28 @@ class PostureMonitor:
             self.state = MonitorState(classify(self._baseline, observation.landmarks).value)
         bad = self.state in (MonitorState.FORWARD_LEAN, MonitorState.SIDE_LEAN) and not self.paused
         self._bad_since = (self._bad_since or now) if bad else None
+        was_visible = self.mirror_visible
         self.mirror_visible = bad and now - self._bad_since >= BAD_POSTURE_DELAY
+        if self.mirror_visible and not was_visible:
+            self._store.add_daily_stats(now.date(), "mirror_count", 1)
+        self._judged_as = None if self.paused else _STATS_COLUMN.get(self.state)
+
+    def _add_watched_time(self, start: datetime, end: datetime, column: str) -> None:
+        """Add start..end to the Daily Stats, split at each local midnight."""
+        # shortcut: one SQLite commit per judged frame (~2.5/s); batch in memory if disk wake-ups show in battery use.
+        while start.date() < end.date():
+            midnight = datetime.combine(start.date() + timedelta(days=1), time())
+            self._store.add_daily_stats(start.date(), column, (midnight - start).total_seconds())
+            start = midnight
+        self._store.add_daily_stats(end.date(), column, (end - start).total_seconds())
+
+    def daily_stats(self, first: date, last: date) -> dict[date, DailyStats]:
+        """Daily Stats of each local day from first to last (inclusive); days without Watched Time are left out."""
+        return {day: DailyStats(*values) for day, values in self._store.daily_stats(first, last).items()}
+
+    def today_stats(self) -> DailyStats:
+        today = self._clock().date()
+        return self.daily_stats(today, today).get(today, DailyStats())
 
     def _end_calibration(self, succeeded: bool) -> None:
         if succeeded:
