@@ -4,7 +4,7 @@ from enum import Enum
 from typing import Callable
 
 from holdup.observation import CameraUnavailable, Landmark, NoPerson, Observation, UserSeen
-from holdup.posture_classifier import Posture, classify
+from holdup.posture_classifier import LIMITS, Posture, Sensitivity, classify
 from holdup.store import Store
 
 Clock = Callable[[], datetime]
@@ -18,6 +18,7 @@ CALIBRATION_COUNTDOWN = timedelta(seconds=3)
 CALIBRATION_CAPTURE = timedelta(seconds=2)
 
 BASELINE = "baseline"  # Store name of the Baseline landmarks
+SENSITIVITY = "sensitivity"  # Store name of the User's Sensitivity ("Low", "Medium" or "High")
 
 
 class MonitorState(Enum):
@@ -43,6 +44,8 @@ class PostureMonitor:
         self._calibration_started: datetime | None = None
         self._captured: list[tuple[Landmark, ...]] = []
         self._bad_since: datetime | None = None
+        saved = self._store.get(SENSITIVITY)
+        self._sensitivity = Sensitivity(saved) if saved in {s.value for s in Sensitivity} else Sensitivity.MEDIUM
 
     def begin_calibration(self) -> None:
         self._calibration_started = self._clock()
@@ -51,6 +54,15 @@ class PostureMonitor:
         self.state = MonitorState.CALIBRATING
         self.mirror_visible = False
         self._bad_since = None
+
+    @property
+    def sensitivity(self) -> Sensitivity:
+        return self._sensitivity
+
+    @sensitivity.setter
+    def sensitivity(self, sensitivity: Sensitivity) -> None:
+        self._sensitivity = sensitivity
+        self._store.set(SENSITIVITY, sensitivity.value)
 
     @property
     def calibrated(self) -> bool:
@@ -84,7 +96,7 @@ class PostureMonitor:
         elif self._baseline is None:
             self.state = MonitorState.UNCALIBRATED
         else:
-            self.state = MonitorState(classify(self._baseline, observation.landmarks).value)
+            self.state = MonitorState(classify(self._baseline, observation.landmarks, LIMITS[self._sensitivity]).value)
         bad = self.state in (MonitorState.FORWARD_LEAN, MonitorState.SIDE_LEAN)
         self._bad_since = (self._bad_since or now) if bad else None
         self.mirror_visible = bad and now - self._bad_since >= BAD_POSTURE_DELAY

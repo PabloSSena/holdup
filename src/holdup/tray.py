@@ -3,12 +3,13 @@ import sys
 from datetime import datetime
 
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QAction, QColor, QIcon, QPainter, QPixmap
+from PySide6.QtGui import QAction, QActionGroup, QColor, QIcon, QPainter, QPixmap
 from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 
 from holdup.camera_source import CameraSource
 from holdup.observation import CameraUnavailable
 from holdup.pose_detector import PoseDetector
+from holdup.posture_classifier import Sensitivity
 from holdup.posture_monitor import MonitorState, PostureMonitor
 from holdup.store import Store, default_path
 from holdup.windows import CalibrationWindow, MirrorWindow
@@ -54,6 +55,14 @@ def main() -> int:
     recalibrate_action = QAction("Recalibrate", menu)
     recalibrate_action.triggered.connect(recalibrate)
     menu.addAction(recalibrate_action)
+    sensitivity_menu = menu.addMenu("Sensitivity")
+    sensitivity_group = QActionGroup(sensitivity_menu)  # exclusive: one choice marked at a time
+    for level in Sensitivity:
+        action = sensitivity_group.addAction(level.value)
+        action.setCheckable(True)
+        action.setChecked(level is monitor.sensitivity)
+        action.triggered.connect(lambda _=False, level=level: setattr(monitor, "sensitivity", level))
+        sensitivity_menu.addAction(action)
     quit_action = QAction("Quit", menu)
     quit_action.triggered.connect(app.quit)
     menu.addAction(quit_action)

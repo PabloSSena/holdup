@@ -14,6 +14,12 @@ class Posture(Enum):
     SIDE_LEAN = "Side Lean"
 
 
+class Sensitivity(Enum):
+    LOW = "Low"
+    MEDIUM = "Medium"
+    HIGH = "High"
+
+
 class Limits(NamedTuple):
     """How far from the Baseline the User may sit before it counts as Bad Posture."""
     closer: float  # growth of the shoulder width (toward the camera), as a share of the Baseline width
@@ -21,8 +27,11 @@ class Limits(NamedTuple):
     tilt: float  # turn of the shoulder line or of the eye line (head tilt), in degrees
 
 
-# Every tuning number lives here. Tuned by eye on synthetic poses; expect a hands-on tuning pass (issue 05 adds Low/High).
+# Every tuning number lives here. Tuned by eye on synthetic poses; expect a hands-on tuning pass.
+LOW = Limits(closer=0.25, head_drop=0.25, tilt=13)
 MEDIUM = Limits(closer=0.15, head_drop=0.15, tilt=8)
+HIGH = Limits(closer=0.08, head_drop=0.08, tilt=5)
+LIMITS = {Sensitivity.LOW: LOW, Sensitivity.MEDIUM: MEDIUM, Sensitivity.HIGH: HIGH}
 
 
 def classify(baseline: tuple[Landmark, ...], landmarks: tuple[Landmark, ...], limits: Limits = MEDIUM) -> Posture:
