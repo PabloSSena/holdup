@@ -28,5 +28,9 @@ Source: "dist\Holdup\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs c
 [Icons]
 Name: "{userprograms}\Holdup"; Filename: "{app}\Holdup.exe"
 
+[Registry]
+; The app writes its Start with Windows entry itself (on by default); this only removes it on uninstall.
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: none; ValueName: "Holdup"; Flags: uninsdeletevalue
+
 [Run]
 Filename: "{app}\Holdup.exe"; Description: "Start Holdup"; Flags: nowait postinstall skipifsilent

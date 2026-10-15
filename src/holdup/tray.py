@@ -10,6 +10,7 @@ from holdup.camera_source import CameraSource
 from holdup.observation import CameraUnavailable
 from holdup.pose_detector import PoseDetector
 from holdup.posture_monitor import MonitorState, PostureMonitor
+from holdup.start_with_windows import RunKey, StartWithWindows
 from holdup.store import Store, default_path
 from holdup.windows import CalibrationWindow, MirrorWindow
 
@@ -77,6 +78,12 @@ def main() -> int:
     resume_action = menu.addAction("Resume")
     resume_action.triggered.connect(resume)
     menu.addSeparator()
+    if getattr(sys, "frozen", False):  # from source there is no exe to register
+        start_with_windows = StartWithWindows(store, RunKey(), sys.executable)
+        start_with_windows.apply()
+        start_action = QAction("Start with Windows", menu, checkable=True, checked=start_with_windows.enabled)
+        start_action.toggled.connect(start_with_windows.set_enabled)
+        menu.addAction(start_action)
     quit_action = QAction("Quit", menu)
     quit_action.triggered.connect(app.quit)
     menu.addAction(quit_action)
