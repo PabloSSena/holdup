@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from fakes import FakeClock
 from landmarks import leaning_forward, upright
 
@@ -222,3 +224,88 @@ def test_recalibrating_hides_the_mirror():
     monitor.begin_calibration()
 
     assert not monitor.mirror_visible
+
+
+def test_pausing_while_the_mirror_is_visible_hides_it_at_once():
+    clock = FakeClock()
+    monitor = calibrated(clock)
+    sit(monitor, clock, leaning_forward(), 5.6)
+    assert monitor.mirror_visible
+
+    monitor.pause()
+
+    assert monitor.paused
+    assert not monitor.mirror_visible
+
+
+def test_no_mirror_appears_while_paused_however_long_the_forward_lean_lasts():
+    clock = FakeClock()
+    monitor = calibrated(clock)
+    monitor.pause()
+
+    sit(monitor, clock, leaning_forward(), 120)
+
+    assert monitor.paused
+    assert not monitor.mirror_visible
+
+
+def test_a_30_minute_pause_ends_by_itself_after_30_minutes():
+    clock = FakeClock()
+    monitor = calibrated(clock)
+
+    monitor.pause(timedelta(minutes=30))
+    clock.advance(30 * 60 - 1)
+    assert monitor.paused
+    clock.advance(1)
+    assert not monitor.paused
+
+
+def test_after_a_pause_ends_the_5_second_count_starts_fresh():
+    clock = FakeClock()
+    monitor = calibrated(clock)
+    monitor.pause(timedelta(hours=1))
+    sit(monitor, clock, leaning_forward(), 3600)
+    assert not monitor.paused
+
+    monitor.observe(leaning_forward())
+    clock.advance(4.9)
+    monitor.observe(leaning_forward())
+    assert not monitor.mirror_visible
+    clock.advance(0.1)
+    monitor.observe(leaning_forward())
+    assert monitor.mirror_visible
+
+
+def test_resume_ends_a_pause_early():
+    clock = FakeClock()
+    monitor = calibrated(clock)
+    monitor.pause(timedelta(hours=1))
+    clock.advance(60)
+
+    monitor.resume()
+
+    assert not monitor.paused
+
+
+def test_resume_ends_a_pause_until_resumed():
+    clock = FakeClock()
+    monitor = calibrated(clock)
+    monitor.pause()
+    clock.advance(24 * 3600)
+    assert monitor.paused
+
+    monitor.resume()
+
+    assert not monitor.paused
+
+
+def test_while_paused_frames_are_analysed_about_once_a_second():
+    clock = FakeClock()
+    monitor = calibrated(clock)
+    monitor.pause()
+    monitor.observe(upright())
+
+    clock.advance(0.9)
+    assert not monitor.analysis_due()
+    clock.advance(0.1)
+    assert monitor.analysis_due()

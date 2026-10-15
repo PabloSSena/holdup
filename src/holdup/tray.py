@@ -1,6 +1,6 @@
 """Tray App: the Qt shell that wires the Camera Source, Pose Detector, Posture Monitor and windows together."""
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QAction, QColor, QIcon, QPainter, QPixmap
@@ -38,18 +38,40 @@ def main() -> int:
     monitor.begin_calibration()
     calibration = CalibrationWindow(monitor)
 
-    icons = {"watching": _dot_icon("#2e9d4f"), "absent": _dot_icon("#8a8a8a")}
+    icons = {"watching": _dot_icon("#2e9d4f"), "absent": _dot_icon("#8a8a8a"), "paused": _dot_icon("#e0a020")}
     tray = QSystemTrayIcon()
     menu = QMenu()
+
+    def pause(duration: timedelta | None) -> None:
+        monitor.pause(duration)
+        mirror.follow(monitor.mirror_visible)
+        show_state()
+
+    def resume() -> None:
+        monitor.resume()
+        show_state()
+
+    pause_actions = []
+    for label, duration in (("Pause for 30 minutes", timedelta(minutes=30)), ("Pause for 1 hour", timedelta(hours=1)), ("Pause until resumed", None)):
+        action = menu.addAction(label)
+        action.triggered.connect(lambda _=False, d=duration: pause(d))
+        pause_actions.append(action)
+    resume_action = menu.addAction("Resume")
+    resume_action.triggered.connect(resume)
+    menu.addSeparator()
     quit_action = QAction("Quit", menu)
     quit_action.triggered.connect(app.quit)
     menu.addAction(quit_action)
     tray.setContextMenu(menu)
 
     def show_state() -> None:
+        paused = monitor.paused
         absent = monitor.state is MonitorState.ABSENT
-        tray.setIcon(icons["absent" if absent else "watching"])
-        tray.setToolTip(f"Holdup: {monitor.state.value}")
+        tray.setIcon(icons["paused" if paused else "absent" if absent else "watching"])
+        tray.setToolTip("Holdup: Paused" if paused else f"Holdup: {monitor.state.value}")
+        for action in pause_actions:
+            action.setVisible(not paused)
+        resume_action.setVisible(paused)
 
     def tick() -> None:
         if calibration.isVisible():
