@@ -5,7 +5,9 @@ import pytest
 from landmarks import leaning_forward, leaning_sideways, tilting_head, upright
 
 from holdup.observation import CameraUnavailable, NoPerson
+from holdup.posture_classifier import Sensitivity
 from holdup.posture_monitor import MonitorState, PostureMonitor
+from holdup.store import Store
 
 
 def test_user_sitting_down_is_watched_and_leaving_makes_them_absent():
@@ -450,3 +452,41 @@ def test_while_paused_frames_are_analysed_about_once_a_second():
     assert not monitor.analysis_due()
     clock.advance(0.1)
     assert monitor.analysis_due()
+
+
+SMALL_LEANS = [(leaning_forward(0.1), MonitorState.FORWARD_LEAN), (leaning_sideways("left", degrees=6), MonitorState.SIDE_LEAN)]
+MODERATE_LEANS = [(leaning_forward(0.2), MonitorState.FORWARD_LEAN), (leaning_sideways("left", degrees=10), MonitorState.SIDE_LEAN)]
+
+
+@pytest.mark.parametrize("lean, kind", SMALL_LEANS)
+def test_a_small_lean_is_good_posture_at_the_default_medium_and_bad_posture_once_sensitivity_is_high(lean, kind):
+    clock = FakeClock()
+    monitor = calibrated(clock)
+    assert monitor.sensitivity is Sensitivity.MEDIUM
+
+    monitor.observe(lean)
+    assert monitor.state is MonitorState.GOOD_POSTURE
+
+    monitor.sensitivity = Sensitivity.HIGH
+    monitor.observe(lean)
+    assert monitor.state is kind
+
+
+@pytest.mark.parametrize("lean, kind", MODERATE_LEANS)
+def test_a_moderate_lean_is_bad_posture_at_medium_but_good_posture_once_sensitivity_is_low(lean, kind):
+    clock = FakeClock()
+    monitor = calibrated(clock)
+
+    monitor.observe(lean)
+    assert monitor.state is kind
+
+    monitor.sensitivity = Sensitivity.LOW
+    monitor.observe(lean)
+    assert monitor.state is MonitorState.GOOD_POSTURE
+
+
+def test_the_chosen_sensitivity_is_remembered_after_a_restart():
+    store = Store()
+    PostureMonitor(clock=FakeClock(), store=store).sensitivity = Sensitivity.HIGH
+
+    assert PostureMonitor(clock=FakeClock(), store=store).sensitivity is Sensitivity.HIGH
