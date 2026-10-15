@@ -5,7 +5,7 @@ import numpy as np
 
 class CameraSource:
     def __init__(self, index: int = 0):
-        self._capture = cv2.VideoCapture(index)
+        self._capture = cv2.VideoCapture(index, cv2.CAP_DSHOW)  # default MSMF backend took ~45 s to open here
         # Keep only the newest frame, so a slow analysis rate never sees a stale one.
         self._capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
