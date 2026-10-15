@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "holdup"
+version = "0.1.0"
+description = "Windows tray app that watches your sitting posture through your own camera."
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "mediapipe>=0.10.20",
+    "PySide6>=6.6",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.gui-scripts]
+holdup = "holdup.tray:main"
+
+[tool.setuptools.package-data]
+holdup = ["models/*.task"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "tests"]
