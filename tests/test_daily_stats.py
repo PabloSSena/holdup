@@ -3,10 +3,10 @@ from datetime import date, datetime
 
 import pytest
 from fakes import FakeClock
-from landmarks import leaning_forward, leaning_sideways, upright
+from landmarks import leaning_forward, leaning_sideways, upright, upright_points
 
-from holdup.observation import CameraUnavailable, NoPerson
-from holdup.posture_monitor import PostureMonitor
+from holdup.observation import CameraUnavailable, NoPerson, UserSeen
+from holdup.posture_monitor import MonitorState, PostureMonitor
 from holdup.store import Store
 
 DAY = date(2026, 1, 5)
@@ -75,6 +75,19 @@ def test_absent_and_camera_unavailable_time_adds_nothing(store, unjudged):
     monitor.observe(unjudged)
 
     assert monitor.today_stats() == before
+
+
+def test_stale_baseline_time_adds_nothing(store):
+    clock = FakeClock()
+    monitor = calibrated(clock, store)
+    moved_back = UserSeen(upright_points(scale=0.6))  # the camera moved: the User looks much smaller
+
+    sit(monitor, clock, moved_back, 60)
+    assert monitor.state is MonitorState.STALE_BASELINE
+    stale_from = monitor.today_stats()
+    sit(monitor, clock, moved_back, 600)
+
+    assert monitor.today_stats() == stale_from
 
 
 def test_paused_time_adds_nothing_although_posture_is_still_seen(store):

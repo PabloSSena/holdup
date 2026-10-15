@@ -54,6 +54,7 @@ def main() -> int:
         "watching": _dot_icon("#2e9d4f"),
         "absent": _dot_icon("#8a8a8a"),
         "unavailable": _dot_icon("#d9822b"),
+        "stale": _dot_icon("#c62828"),
         "paused": _dot_icon("#e0a020"),
     }
     tray = QSystemTrayIcon()
@@ -100,7 +101,8 @@ def main() -> int:
 
     def show_state() -> None:
         paused = monitor.paused
-        icon = {MonitorState.ABSENT: "absent", MonitorState.CAMERA_UNAVAILABLE: "unavailable"}.get(monitor.state, "watching")
+        icon = {MonitorState.ABSENT: "absent", MonitorState.CAMERA_UNAVAILABLE: "unavailable",
+                MonitorState.STALE_BASELINE: "stale"}.get(monitor.state, "watching")
         tray.setIcon(icons["paused" if paused else icon])
         tray.setToolTip("Holdup: Paused" if paused else f"Holdup: {monitor.state.value}")
         for action in pause_actions:
@@ -118,6 +120,9 @@ def main() -> int:
             monitor.observe(CameraUnavailable() if frame is None else detector.detect(frame))
             mirror.follow(monitor.mirror_visible)
             show_state()
+            if monitor.take_recalibration_prompt():
+                tray.showMessage("Holdup: camera view changed",
+                                 "Your Baseline no longer fits. Choose Recalibrate in the tray menu to resume watching.")
         if frame is None:
             return
         for window in (mirror, calibration):
