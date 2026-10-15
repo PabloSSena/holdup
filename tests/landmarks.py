@@ -23,3 +23,12 @@ def upright_points(scale: float = 1.0) -> tuple[Landmark, ...]:
 
 def upright() -> UserSeen:
     return UserSeen(upright_points())
+
+
+def leaning_forward(amount: float = 0.3) -> UserSeen:
+    """The upright User moved toward the camera by `amount` (0.3 = 30% larger) with the head dropped forward."""
+    points = upright_points(scale=1.0 + amount)
+    head = range(11)  # nose, eyes, ears, mouth
+    return UserSeen(tuple(
+        p._replace(y=p.y + amount * 0.25) if i in head else p for i, p in enumerate(points)
+    ))
