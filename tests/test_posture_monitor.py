@@ -1,7 +1,7 @@
 from fakes import FakeClock
 from landmarks import leaning_forward, upright
 
-from holdup.observation import NoPerson
+from holdup.observation import CameraUnavailable, NoPerson
 from holdup.posture_monitor import MonitorState, PostureMonitor
 
 
@@ -222,3 +222,70 @@ def test_recalibrating_hides_the_mirror():
     monitor.begin_calibration()
 
     assert not monitor.mirror_visible
+
+
+def test_an_unreadable_camera_is_camera_unavailable_not_absent():
+    monitor = PostureMonitor(clock=FakeClock())
+    monitor.observe(upright())
+
+    monitor.observe(CameraUnavailable())
+
+    assert monitor.state is MonitorState.CAMERA_UNAVAILABLE
+
+
+def test_camera_unavailable_hides_the_mirror_and_restarts_the_5_second_count():
+    clock = FakeClock()
+    monitor = calibrated(clock)
+    sit(monitor, clock, leaning_forward(), 5.6)
+
+    monitor.observe(CameraUnavailable())
+    assert not monitor.mirror_visible
+
+    clock.advance(1)
+    sit(monitor, clock, leaning_forward(), 4.8)
+    assert not monitor.mirror_visible
+
+
+def test_watching_resumes_by_itself_when_the_camera_delivers_frames_again():
+    clock = FakeClock()
+    monitor = calibrated(clock)
+    sit(monitor, clock, CameraUnavailable(), 10)
+
+    monitor.observe(leaning_forward())
+
+    assert monitor.state is MonitorState.FORWARD_LEAN
+
+
+def test_while_the_camera_is_unavailable_it_is_retried_about_once_a_second():
+    clock = FakeClock()
+    monitor = calibrated(clock)
+    monitor.observe(CameraUnavailable())
+
+    clock.advance(0.9)
+    assert not monitor.analysis_due()
+    clock.advance(0.1)
+    assert monitor.analysis_due()
+
+
+def test_calibration_fails_at_once_when_the_camera_is_unavailable_instead_of_waiting_forever():
+    clock = FakeClock()
+    monitor = PostureMonitor(clock=clock)
+    monitor.begin_calibration()
+
+    monitor.observe(CameraUnavailable())
+
+    assert monitor.state is MonitorState.CAMERA_UNAVAILABLE
+    assert monitor.calibration_failed
+    assert monitor.calibration_countdown() == 0
+
+
+def test_a_calibration_lost_to_the_camera_keeps_the_previous_baseline():
+    clock = FakeClock()
+    monitor = calibrated(clock)
+    monitor.begin_calibration()
+    sit(monitor, clock, upright(), 3.2)
+
+    monitor.observe(CameraUnavailable())
+    monitor.observe(upright())
+
+    assert monitor.state is MonitorState.GOOD_POSTURE

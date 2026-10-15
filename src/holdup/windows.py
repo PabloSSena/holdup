@@ -82,6 +82,8 @@ class CalibrationWindow(QWidget):
         if calibrating:
             left = self._monitor.calibration_countdown()
             self._status.setText(f"Capturing in {math.ceil(left)}…" if left else "Hold still…")
+        elif failed and self._monitor.state is MonitorState.CAMERA_UNAVAILABLE:
+            self._status.setText("Calibration failed: the camera can't be read (unplugged, covered or in use by another app).")
         elif failed:
             self._status.setText("Calibration failed: make sure you are in view and hold still, then retry.")
         else:

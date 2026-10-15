@@ -7,6 +7,7 @@ from PySide6.QtGui import QAction, QColor, QIcon, QPainter, QPixmap
 from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 
 from holdup.camera_source import CameraSource
+from holdup.observation import CameraUnavailable
 from holdup.pose_detector import PoseDetector
 from holdup.posture_monitor import MonitorState, PostureMonitor
 from holdup.windows import CalibrationWindow, MirrorWindow
@@ -38,7 +39,7 @@ def main() -> int:
     monitor.begin_calibration()
     calibration = CalibrationWindow(monitor)
 
-    icons = {"watching": _dot_icon("#2e9d4f"), "absent": _dot_icon("#8a8a8a")}
+    icons = {"watching": _dot_icon("#2e9d4f"), "absent": _dot_icon("#8a8a8a"), "unavailable": _dot_icon("#d9822b")}
     tray = QSystemTrayIcon()
     menu = QMenu()
     quit_action = QAction("Quit", menu)
@@ -47,8 +48,8 @@ def main() -> int:
     tray.setContextMenu(menu)
 
     def show_state() -> None:
-        absent = monitor.state is MonitorState.ABSENT
-        tray.setIcon(icons["absent" if absent else "watching"])
+        icon = {MonitorState.ABSENT: "absent", MonitorState.CAMERA_UNAVAILABLE: "unavailable"}.get(monitor.state, "watching")
+        tray.setIcon(icons[icon])
         tray.setToolTip(f"Holdup: {monitor.state.value}")
 
     def tick() -> None:
@@ -58,12 +59,12 @@ def main() -> int:
         if not (due or mirror.isVisible() or calibration.isVisible()):
             return
         frame = camera.read()
-        if frame is None:
-            return  # shortcut: unreadable camera is ignored, issue 07 adds Camera Unavailable
         if due:
-            monitor.observe(detector.detect(frame))
+            monitor.observe(CameraUnavailable() if frame is None else detector.detect(frame))
             mirror.follow(monitor.mirror_visible)
             show_state()
+        if frame is None:
+            return
         for window in (mirror, calibration):
             if window.isVisible():
                 window.show_frame(frame)

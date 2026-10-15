@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import Callable
 
-from holdup.observation import Landmark, NoPerson, Observation, UserSeen
+from holdup.observation import CameraUnavailable, Landmark, NoPerson, Observation, UserSeen
 from holdup.posture_classifier import leans_forward
 
 Clock = Callable[[], datetime]
@@ -23,6 +23,7 @@ class MonitorState(Enum):
     GOOD_POSTURE = "Good Posture"
     FORWARD_LEAN = "Forward Lean"
     ABSENT = "Absent"
+    CAMERA_UNAVAILABLE = "Camera Unavailable"
 
 
 class PostureMonitor:
@@ -54,6 +55,8 @@ class PostureMonitor:
 
     def observe(self, observation: Observation) -> None:
         now = self._last_observed = self._clock()
+        if self._calibration_started is not None and isinstance(observation, CameraUnavailable):
+            self._end_calibration(succeeded=False)  # without frames the countdown would never end
         if self._calibration_started is not None:
             capture_from = self._calibration_started + CALIBRATION_COUNTDOWN
             if now < capture_from:
@@ -63,7 +66,9 @@ class PostureMonitor:
                 self._captured.append(observation.landmarks)
                 return
             self._end_calibration(succeeded=not capturing and bool(self._captured) and _steady(self._captured))
-        if isinstance(observation, NoPerson):
+        if isinstance(observation, CameraUnavailable):
+            self.state = MonitorState.CAMERA_UNAVAILABLE
+        elif isinstance(observation, NoPerson):
             self.state = MonitorState.ABSENT
         elif self._baseline is None:
             self.state = MonitorState.UNCALIBRATED
@@ -86,7 +91,8 @@ class PostureMonitor:
         """Whether the next camera frame should be analysed and passed to observe()."""
         if self._last_observed is None:
             return True
-        interval = IDLE_INTERVAL if self.state is MonitorState.ABSENT else WATCHING_INTERVAL
+        idle = self.state in (MonitorState.ABSENT, MonitorState.CAMERA_UNAVAILABLE)
+        interval = IDLE_INTERVAL if idle else WATCHING_INTERVAL
         elapsed = self._clock() - self._last_observed
         return not timedelta(0) <= elapsed < interval
 
