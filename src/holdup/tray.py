@@ -137,6 +137,7 @@ def main() -> int:
     main_window = MainWindow(monitor, Actions(
         pause=pause, resume=resume, recalibrate=recalibrate, set_sensitivity=set_sensitivity,
         camera_names=_camera_names, choose_camera=choose_camera, start_with_windows=start_with_windows,
+        retry_camera=camera.close,
     ))
     calibration = main_window.calibration
     tray.activated.connect(lambda reason: reason == QSystemTrayIcon.Trigger and main_window.present())

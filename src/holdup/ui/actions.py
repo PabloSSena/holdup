@@ -16,3 +16,4 @@ class Actions:
     camera_names: Callable[[], list[str]]  # cameras plugged in right now
     choose_camera: Callable[[str], None]  # may make the Baseline Stale
     start_with_windows: StartWithWindows | None  # None when run from source: there is no exe to register
+    retry_camera: Callable[[], None]  # closes the camera so the next tick reopens it

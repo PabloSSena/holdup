@@ -29,11 +29,14 @@ class CameraSource:
             self._capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
         ok, frame = self._capture.read()
         if not ok:
-            self.close()  # an unplugged or taken camera does not come back on the same handle
+            self._capture.release()  # an unplugged or taken camera does not come back on the same handle
+            self._capture = None
             return None
         return cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
     def close(self) -> None:
+        """Release the camera; the next read() opens it again at once (a new choice, or the User's Try again)."""
         if self._capture is not None:
             self._capture.release()
             self._capture = None
+        self._next_open = 0.0
