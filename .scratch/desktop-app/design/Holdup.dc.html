@@ -61,15 +61,15 @@ button{font-family:inherit}
         <div style="width:{{ sideW }}px;flex:0 0 auto;background:var(--sb,#ECE7DE);border-right:1px solid var(--ln,#E3DED4);display:flex;flex-direction:column;padding:14px 10px;gap:4px">
           <button onClick="{{ goToday }}" style="display:flex;align-items:center;gap:12px;height:40px;padding:0 12px;border:none;border-radius:10px;background:{{ nav.today }};color:var(--ink,#1F2A26);font-size:14px;font-weight:600;cursor:pointer;text-align:left">
             <svg width="18" height="18" viewBox="0 0 18 18" style="flex:0 0 18px"><circle cx="9" cy="9" r="7" style="fill:none;stroke:currentColor;stroke-width:1.6"></circle><path d="M9 5v4l2.5 2" style="fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round"></path></svg>
-            <sc-if value="{{ showLabels }}" hint-placeholder-val="{{ true }}"><span>Today</span></sc-if>
+            <sc-if value="{{ showLabels }}" hint-placeholder-val="{{ true }}"><span>{{ L.today }}</span></sc-if>
           </button>
           <button onClick="{{ goHistory }}" style="display:flex;align-items:center;gap:12px;height:40px;padding:0 12px;border:none;border-radius:10px;background:{{ nav.history }};color:var(--ink,#1F2A26);font-size:14px;font-weight:600;cursor:pointer;text-align:left">
             <svg width="18" height="18" viewBox="0 0 18 18" style="flex:0 0 18px"><path d="M3 15V9M7 15V4M11 15V7M15 15V11" style="fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round"></path></svg>
-            <sc-if value="{{ showLabels }}" hint-placeholder-val="{{ true }}"><span>History</span></sc-if>
+            <sc-if value="{{ showLabels }}" hint-placeholder-val="{{ true }}"><span>{{ L.history }}</span></sc-if>
           </button>
           <button onClick="{{ goSettings }}" style="display:flex;align-items:center;gap:12px;height:40px;padding:0 12px;border:none;border-radius:10px;background:{{ nav.settings }};color:var(--ink,#1F2A26);font-size:14px;font-weight:600;cursor:pointer;text-align:left">
             <svg width="18" height="18" viewBox="0 0 18 18" style="flex:0 0 18px"><path d="M2 5h8M14 5h2M2 13h2M8 13h8" style="fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round"></path><circle cx="12" cy="5" r="2" style="fill:none;stroke:currentColor;stroke-width:1.6"></circle><circle cx="6" cy="13" r="2" style="fill:none;stroke:currentColor;stroke-width:1.6"></circle></svg>
-            <sc-if value="{{ showLabels }}" hint-placeholder-val="{{ true }}"><span>Settings</span></sc-if>
+            <sc-if value="{{ showLabels }}" hint-placeholder-val="{{ true }}"><span>{{ L.settings }}</span></sc-if>
           </button>
           <div style="flex:1"></div>
           <div title="{{ st.label }}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:var(--cd,#FFFFFF);border:1px solid var(--ln,#E3DED4)">
@@ -85,19 +85,19 @@ button{font-family:inherit}
           <sc-if value="{{ isToday }}" hint-placeholder-val="{{ true }}">
           <div style="display:flex;flex-direction:column;gap:16px;max-width:820px">
             <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
-              <div style="font-size:26px;font-weight:700;letter-spacing:-0.01em">Today</div>
-              <div style="font-size:14px;color:var(--mu,#5E6A64)">Friday, 16 October</div>
+              <div style="font-size:26px;font-weight:700;letter-spacing:-0.01em">{{ L.today }}</div>
+              <div style="font-size:14px;color:var(--mu,#5E6A64)">{{ L.date }}</div>
             </div>
 
             <sc-if value="{{ showCamBanner }}">
             <div style="display:flex;gap:14px;align-items:flex-start;background:var(--wn,#FBF0E1);border-radius:14px;padding:16px 18px;color:var(--wni,#7A4A12)">
               <svg width="22" height="22" viewBox="0 0 24 24" style="flex:0 0 22px;margin-top:1px"><rect x="2.5" y="6.5" width="13" height="11" rx="2.5" style="fill:none;stroke:currentColor;stroke-width:1.7"></rect><path d="M15.5 10.5l5-3v9l-5-3" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linejoin:round"></path><path d="M3 3l18 18" style="stroke:currentColor;stroke-width:1.7;stroke-linecap:round"></path></svg>
               <div style="flex:1;display:flex;flex-direction:column;gap:4px">
-                <div style="font-size:15px;font-weight:700">Holdup can't read your camera</div>
-                <div style="font-size:14px;line-height:1.45">It may be unplugged, covered, or in use by another app such as a video call. Holdup keeps trying on its own and starts watching again when the camera is free.</div>
+                <div style="font-size:15px;font-weight:700">{{ L.camTitle }}</div>
+                <div style="font-size:14px;line-height:1.45">{{ L.camBody }}</div>
                 <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
-                  <button onClick="{{ retryCamera }}" style="height:34px;padding:0 14px;border-radius:9px;border:none;background:var(--wni,#7A4A12);color:var(--wn,#FBF0E1);font-size:13px;font-weight:600;cursor:pointer">Try again</button>
-                  <button onClick="{{ goSettings }}" style="height:34px;padding:0 14px;border-radius:9px;border:1px solid currentColor;background:transparent;color:var(--wni,#7A4A12);font-size:13px;font-weight:600;cursor:pointer">Choose another camera</button>
+                  <button onClick="{{ retryCamera }}" style="height:34px;padding:0 14px;border-radius:9px;border:none;background:var(--wni,#7A4A12);color:var(--wn,#FBF0E1);font-size:13px;font-weight:600;cursor:pointer">{{ L.tryAgain }}</button>
+                  <button onClick="{{ goSettings }}" style="height:34px;padding:0 14px;border-radius:9px;border:1px solid currentColor;background:transparent;color:var(--wni,#7A4A12);font-size:13px;font-weight:600;cursor:pointer">{{ L.chooseCam }}</button>
                 </div>
               </div>
             </div>
@@ -107,10 +107,10 @@ button{font-family:inherit}
             <div style="display:flex;gap:14px;align-items:flex-start;background:var(--wn,#FBF0E1);border-radius:14px;padding:16px 18px;color:var(--wni,#7A4A12)">
               <svg width="22" height="22" viewBox="0 0 24 24" style="flex:0 0 22px;margin-top:1px"><path d="M20 12a8 8 0 1 1-2.6-5.9" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round"></path><path d="M18 2.5v4h-4" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"></path></svg>
               <div style="flex:1;display:flex;flex-direction:column;gap:4px">
-                <div style="font-size:15px;font-weight:700">Your camera view has changed</div>
-                <div style="font-size:14px;line-height:1.45">Your Baseline no longer matches what the camera sees, so Holdup has stopped watching for now. Recalibrate and it picks up right away.</div>
+                <div style="font-size:15px;font-weight:700">{{ L.staleTitle }}</div>
+                <div style="font-size:14px;line-height:1.45">{{ L.staleBody }}</div>
                 <div style="display:flex;gap:8px;margin-top:8px">
-                  <button onClick="{{ openCal }}" style="height:34px;padding:0 14px;border-radius:9px;border:none;background:var(--wni,#7A4A12);color:var(--wn,#FBF0E1);font-size:13px;font-weight:600;cursor:pointer">Recalibrate</button>
+                  <button onClick="{{ openCal }}" style="height:34px;padding:0 14px;border-radius:9px;border:none;background:var(--wni,#7A4A12);color:var(--wn,#FBF0E1);font-size:13px;font-weight:600;cursor:pointer">{{ L.recal }}</button>
                 </div>
               </div>
             </div>
@@ -127,20 +127,20 @@ button{font-family:inherit}
               <div style="height:1px;background:var(--ln,#E3DED4)"></div>
               <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
                 <sc-if value="{{ isPaused }}">
-                  <button onClick="{{ resume }}" style="height:36px;padding:0 16px;border-radius:10px;border:none;background:var(--ac,#2F7D62);color:var(--aci,#FFFFFF);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M3 1.5l7 4.5-7 4.5z" fill="currentColor"></path></svg>Resume</button>
+                  <button onClick="{{ resume }}" style="height:36px;padding:0 16px;border-radius:10px;border:none;background:var(--ac,#2F7D62);color:var(--aci,#FFFFFF);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M3 1.5l7 4.5-7 4.5z" fill="currentColor"></path></svg>{{ L.resume }}</button>
                 </sc-if>
                 <sc-for list="{{ pauseBtns }}" as="b" hint-placeholder-count="3">
                   <button onClick="{{ b.onClick }}" style="height:36px;padding:0 14px;border-radius:10px;border:1px solid {{ b.bd }};background:{{ b.bg }};color:var(--ink,#1F2A26);font-size:13px;font-weight:600;cursor:pointer">{{ b.label }}</button>
                 </sc-for>
                 <div style="flex:1"></div>
-                <button onClick="{{ openCal }}" style="height:36px;padding:0 14px;border-radius:10px;border:1px solid var(--ln,#E3DED4);background:transparent;color:var(--ink,#1F2A26);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9" style="fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round"></path><path d="M18 2.5v4h-4" style="fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"></path></svg>Recalibrate</button>
+                <button onClick="{{ openCal }}" style="height:36px;padding:0 14px;border-radius:10px;border:1px solid var(--ln,#E3DED4);background:transparent;color:var(--ink,#1F2A26);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9" style="fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round"></path><path d="M18 2.5v4h-4" style="fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"></path></svg>{{ L.recal }}</button>
               </div>
             </div>
 
             <div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:16px">
               <div style="background:var(--cd,#FFFFFF);border:1px solid var(--ln,#E3DED4);border-radius:16px;padding:20px 22px;display:flex;flex-direction:column;gap:16px">
                 <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
-                  <div style="font-size:15px;font-weight:700">Watched Time</div>
+                  <div style="font-size:15px;font-weight:700">{{ L.watched }}</div>
                   <div style="font-size:22px;font-weight:700;font-variant-numeric:tabular-nums">4 h 36 min</div>
                 </div>
                 <div style="display:flex;height:12px;border-radius:6px;overflow:hidden;gap:2px">
@@ -149,15 +149,15 @@ button{font-family:inherit}
                   <div style="width:8%;background:var(--sd,#6870B5)"></div>
                 </div>
                 <div style="display:flex;flex-direction:column;gap:10px;font-size:14px">
-                  <div style="display:grid;grid-template-columns:12px minmax(0,1fr) 48px 84px;gap:10px;align-items:center"><div style="width:12px;height:12px;border-radius:4px;background:var(--ac,#2F7D62)"></div><span style="font-weight:600">Good Posture</span><span style="text-align:right;font-weight:700;font-variant-numeric:tabular-nums">71%</span><span style="text-align:right;color:var(--mu,#5E6A64);font-variant-numeric:tabular-nums">3 h 16 min</span></div>
-                  <div style="display:grid;grid-template-columns:12px minmax(0,1fr) 48px 84px;gap:10px;align-items:center"><div style="width:12px;height:12px;border-radius:4px;background:var(--fw,#C27A26)"></div><span style="font-weight:600">Forward Lean</span><span style="text-align:right;font-weight:700;font-variant-numeric:tabular-nums">21%</span><span style="text-align:right;color:var(--mu,#5E6A64);font-variant-numeric:tabular-nums">58 min</span></div>
-                  <div style="display:grid;grid-template-columns:12px minmax(0,1fr) 48px 84px;gap:10px;align-items:center"><div style="width:12px;height:12px;border-radius:4px;background:var(--sd,#6870B5)"></div><span style="font-weight:600">Side Lean</span><span style="text-align:right;font-weight:700;font-variant-numeric:tabular-nums">8%</span><span style="text-align:right;color:var(--mu,#5E6A64);font-variant-numeric:tabular-nums">22 min</span></div>
+                  <div style="display:grid;grid-template-columns:12px minmax(0,1fr) 48px 84px;gap:10px;align-items:center"><div style="width:12px;height:12px;border-radius:4px;background:var(--ac,#2F7D62)"></div><span style="font-weight:600">{{ L.good }}</span><span style="text-align:right;font-weight:700;font-variant-numeric:tabular-nums">71%</span><span style="text-align:right;color:var(--mu,#5E6A64);font-variant-numeric:tabular-nums">3 h 16 min</span></div>
+                  <div style="display:grid;grid-template-columns:12px minmax(0,1fr) 48px 84px;gap:10px;align-items:center"><div style="width:12px;height:12px;border-radius:4px;background:var(--fw,#C27A26)"></div><span style="font-weight:600">{{ L.fwd }}</span><span style="text-align:right;font-weight:700;font-variant-numeric:tabular-nums">21%</span><span style="text-align:right;color:var(--mu,#5E6A64);font-variant-numeric:tabular-nums">58 min</span></div>
+                  <div style="display:grid;grid-template-columns:12px minmax(0,1fr) 48px 84px;gap:10px;align-items:center"><div style="width:12px;height:12px;border-radius:4px;background:var(--sd,#6870B5)"></div><span style="font-weight:600">{{ L.side }}</span><span style="text-align:right;font-weight:700;font-variant-numeric:tabular-nums">8%</span><span style="text-align:right;color:var(--mu,#5E6A64);font-variant-numeric:tabular-nums">22 min</span></div>
                 </div>
               </div>
               <div style="background:var(--cd,#FFFFFF);border:1px solid var(--ln,#E3DED4);border-radius:16px;padding:20px 22px;display:flex;flex-direction:column;gap:8px">
-                <div style="font-size:15px;font-weight:700">Mirror</div>
-                <div style="display:flex;align-items:baseline;gap:8px;margin-top:6px"><span style="font-size:44px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums">4</span><span style="font-size:15px;color:var(--mu,#5E6A64)">times today</span></div>
-                <div style="font-size:13px;color:var(--mu,#5E6A64);line-height:1.45;margin-top:auto;text-wrap:pretty">The Mirror shows you your camera picture when Bad Posture lasts too long.</div>
+                <div style="font-size:15px;font-weight:700">{{ L.mirror }}</div>
+                <div style="display:flex;align-items:baseline;gap:8px;margin-top:6px"><span style="font-size:44px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums">4</span><span style="font-size:15px;color:var(--mu,#5E6A64)">{{ L.timesToday }}</span></div>
+                <div style="font-size:13px;color:var(--mu,#5E6A64);line-height:1.45;margin-top:auto;text-wrap:pretty">{{ L.mirrorNote }}</div>
               </div>
             </div>
           </div>
@@ -167,27 +167,27 @@ button{font-family:inherit}
           <sc-if value="{{ isHistory }}">
           <div style="display:flex;flex-direction:column;gap:16px;max-width:820px">
             <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-              <div style="font-size:26px;font-weight:700;letter-spacing:-0.01em;flex:1">History</div>
+              <div style="font-size:26px;font-weight:700;letter-spacing:-0.01em;flex:1">{{ L.history }}</div>
               <div style="display:flex;background:var(--sb,#ECE7DE);border-radius:10px;padding:3px;gap:2px">
-                <button onClick="{{ range7 }}" style="height:30px;padding:0 12px;border:none;border-radius:8px;background:{{ rangeBg.r7 }};color:var(--ink,#1F2A26);font-size:13px;font-weight:600;cursor:pointer">Last 7 days</button>
-                <button onClick="{{ range30 }}" style="height:30px;padding:0 12px;border:none;border-radius:8px;background:{{ rangeBg.r30 }};color:var(--ink,#1F2A26);font-size:13px;font-weight:600;cursor:pointer">Last 30 days</button>
+                <button onClick="{{ range7 }}" style="height:30px;padding:0 12px;border:none;border-radius:8px;background:{{ rangeBg.r7 }};color:var(--ink,#1F2A26);font-size:13px;font-weight:600;cursor:pointer">{{ L.last7 }}</button>
+                <button onClick="{{ range30 }}" style="height:30px;padding:0 12px;border:none;border-radius:8px;background:{{ rangeBg.r30 }};color:var(--ink,#1F2A26);font-size:13px;font-weight:600;cursor:pointer">{{ L.last30 }}</button>
               </div>
-              <button onClick="{{ askClear }}" disabled="{{ cleared }}" style="height:36px;padding:0 14px;border-radius:10px;border:1px solid var(--ln,#E3DED4);background:transparent;color:var(--ink,#1F2A26);font-size:13px;font-weight:600;cursor:pointer;opacity:{{ clearOpacity }}">Clear statistics</button>
+              <button onClick="{{ askClear }}" disabled="{{ cleared }}" style="height:36px;padding:0 14px;border-radius:10px;border:1px solid var(--ln,#E3DED4);background:transparent;color:var(--ink,#1F2A26);font-size:13px;font-weight:600;cursor:pointer;opacity:{{ clearOpacity }}">{{ L.clear }}</button>
             </div>
 
             <sc-if value="{{ cleared }}">
             <div style="background:var(--cd,#FFFFFF);border:1px solid var(--ln,#E3DED4);border-radius:16px;padding:56px 32px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
               <div style="width:56px;height:56px;border-radius:50%;background:var(--acs,#E0EEE6);display:grid;place-items:center;margin-bottom:6px"><svg width="24" height="24" viewBox="0 0 18 18"><path d="M3 15V9M7 15V4M11 15V7M15 15V11" style="fill:none;stroke:var(--ac,#2F7D62);stroke-width:1.8;stroke-linecap:round"></path></svg></div>
-              <div style="font-size:18px;font-weight:700">No Daily Stats yet</div>
-              <div style="font-size:14px;color:var(--mu,#5E6A64);max-width:360px;line-height:1.5;text-wrap:pretty">Once Holdup has watched you for a while, each day's Good Posture, Forward Lean and Side Lean show up here.</div>
+              <div style="font-size:18px;font-weight:700">{{ L.emptyTitle }}</div>
+              <div style="font-size:14px;color:var(--mu,#5E6A64);max-width:360px;line-height:1.5;text-wrap:pretty">{{ L.emptyBody }}</div>
             </div>
             </sc-if>
 
             <sc-if value="{{ hasStats }}" hint-placeholder-val="{{ true }}">
             <div style="background:var(--cd,#FFFFFF);border:1px solid var(--ln,#E3DED4);border-radius:16px;padding:20px 22px;display:flex;flex-direction:column;gap:14px">
               <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap">
-                <div style="font-size:15px;font-weight:700">Good Posture per day</div>
-                <div style="font-size:13px;color:var(--mu,#5E6A64)">Average <span style="font-weight:700;color:var(--ink,#1F2A26)">{{ avgGood }}%</span> across {{ activeDays }} days with Watched Time</div>
+                <div style="font-size:15px;font-weight:700">{{ L.chartTitle }}</div>
+                <div style="font-size:13px;color:var(--mu,#5E6A64)">{{ L.average }} <span style="font-weight:700;color:var(--ink,#1F2A26)">{{ avgGood }}%</span> {{ L.across }} {{ activeDays }} {{ L.daysWith }}</div>
               </div>
               <div style="display:flex;gap:10px">
                 <div style="width:34px;height:150px;display:flex;flex-direction:column;justify-content:space-between;font-size:11px;color:var(--mu,#5E6A64);text-align:right;font-variant-numeric:tabular-nums"><span style="margin-top:-6px">100%</span><span>50%</span><span style="margin-bottom:-6px">0%</span></div>
@@ -215,19 +215,19 @@ button{font-family:inherit}
             </div>
 
             <div style="background:var(--cd,#FFFFFF);border:1px solid var(--ln,#E3DED4);border-radius:16px;padding:8px 0;display:flex;flex-direction:column">
-              <div style="padding:10px 22px 12px;font-size:15px;font-weight:700">Daily Stats</div>
+              <div style="padding:10px 22px 12px;font-size:15px;font-weight:700">{{ L.dailyStats }}</div>
               <div style="display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1.1fr) repeat(3,minmax(0,1fr)) minmax(0,.7fr);gap:8px;padding:0 22px 8px;font-size:12px;font-weight:600;color:var(--mu,#5E6A64);border-bottom:1px solid var(--ln,#E3DED4)">
-                <span>Day</span><span>Watched Time</span>
-                <span style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><i style="width:8px;height:8px;border-radius:3px;background:var(--ac,#2F7D62)"></i>Good Posture</span>
-                <span style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><i style="width:8px;height:8px;border-radius:3px;background:var(--fw,#C27A26)"></i>Forward Lean</span>
-                <span style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><i style="width:8px;height:8px;border-radius:3px;background:var(--sd,#6870B5)"></i>Side Lean</span>
-                <span style="text-align:right">Mirror</span>
+                <span>{{ L.day }}</span><span>{{ L.watched }}</span>
+                <span style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><i style="width:8px;height:8px;border-radius:3px;background:var(--ac,#2F7D62)"></i>{{ L.good }}</span>
+                <span style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><i style="width:8px;height:8px;border-radius:3px;background:var(--fw,#C27A26)"></i>{{ L.fwd }}</span>
+                <span style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><i style="width:8px;height:8px;border-radius:3px;background:var(--sd,#6870B5)"></i>{{ L.side }}</span>
+                <span style="text-align:right">{{ L.mirror }}</span>
               </div>
               <sc-for list="{{ rows }}" as="r" hint-placeholder-count="7">
                 <div style="display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1.1fr) repeat(3,minmax(0,1fr)) minmax(0,.7fr);gap:8px;padding:11px 22px;font-size:14px;align-items:center;border-bottom:1px solid var(--ln,#E3DED4);font-variant-numeric:tabular-nums">
                   <span style="font-weight:600;white-space:nowrap">{{ r.day }}</span>
                   <sc-if value="{{ r.empty }}">
-                    <span style="grid-column:2 / -1;color:var(--mu,#5E6A64);font-size:13px">No Watched Time</span>
+                    <span style="grid-column:2 / -1;color:var(--mu,#5E6A64);font-size:13px">{{ L.noWatched }}</span>
                   </sc-if>
                   <sc-if value="{{ r.full }}">
                     <span style="color:var(--mu,#5E6A64)">{{ r.time }}</span>
@@ -246,12 +246,12 @@ button{font-family:inherit}
           <!-- SETTINGS -->
           <sc-if value="{{ isSettings }}">
           <div style="display:flex;flex-direction:column;gap:16px;max-width:680px">
-            <div style="font-size:26px;font-weight:700;letter-spacing:-0.01em">Settings</div>
+            <div style="font-size:26px;font-weight:700;letter-spacing:-0.01em">{{ L.settings }}</div>
 
             <div style="background:var(--cd,#FFFFFF);border:1px solid var(--ln,#E3DED4);border-radius:16px;padding:20px 22px;display:flex;flex-direction:column;gap:14px">
               <div style="display:flex;flex-direction:column;gap:4px">
-                <div style="font-size:15px;font-weight:700">Sensitivity</div>
-                <div style="font-size:14px;color:var(--mu,#5E6A64);line-height:1.45">How far from your Baseline you may sit before it counts as Bad Posture.</div>
+                <div style="font-size:15px;font-weight:700">{{ L.sens }}</div>
+                <div style="font-size:14px;color:var(--mu,#5E6A64);line-height:1.45">{{ L.sensExplain }}</div>
               </div>
               <div style="display:flex;background:var(--sb,#ECE7DE);border-radius:10px;padding:3px;gap:2px;align-self:flex-start">
                 <sc-for list="{{ sensBtns }}" as="s" hint-placeholder-count="3">
@@ -263,13 +263,13 @@ button{font-family:inherit}
                   <div style="position:absolute;top:0;bottom:0;left:50%;width:{{ zoneW }}%;transform:translateX(-50%);background:var(--acs,#E0EEE6);border-left:2px solid var(--ac,#2F7D62);border-right:2px solid var(--ac,#2F7D62)"></div>
                   <div style="position:absolute;top:5px;bottom:5px;left:50%;width:2px;margin-left:-1px;background:var(--ink,#1F2A26);border-radius:1px"></div>
                 </div>
-                <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--mu,#5E6A64)"><span>Bad Posture</span><span style="font-weight:600;color:var(--ink,#1F2A26)">Baseline</span><span>Bad Posture</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--mu,#5E6A64)"><span>{{ L.bad }}</span><span style="font-weight:600;color:var(--ink,#1F2A26)">{{ L.baseline }}</span><span>{{ L.bad }}</span></div>
               </div>
               <div style="font-size:14px;line-height:1.45">{{ sensDesc }}</div>
             </div>
 
             <div style="background:var(--cd,#FFFFFF);border:1px solid var(--ln,#E3DED4);border-radius:16px;padding:20px 22px;display:flex;flex-direction:column;gap:12px">
-              <div style="font-size:15px;font-weight:700">Camera</div>
+              <div style="font-size:15px;font-weight:700">{{ L.camera }}</div>
               <div style="position:relative;max-width:380px">
                 <button onClick="{{ toggleCamMenu }}" disabled="{{ noCam }}" style="width:100%;height:40px;padding:0 12px 0 14px;border-radius:10px;border:1px solid var(--ln,#E3DED4);background:var(--sf,#F7F4EE);color:var(--ink,#1F2A26);font-size:14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;opacity:{{ camOpacity }}">
                   <span>{{ camLabel }}</span>
@@ -283,25 +283,25 @@ button{font-family:inherit}
                 </div>
                 </sc-if>
               </div>
-              <sc-if value="{{ noCam }}"><div style="font-size:14px;color:var(--mu,#5E6A64)">Plug in a camera and it shows up here.</div></sc-if>
+              <sc-if value="{{ noCam }}"><div style="font-size:14px;color:var(--mu,#5E6A64)">{{ L.plugIn }}</div></sc-if>
               <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--mu,#5E6A64);line-height:1.45">
                 <svg width="16" height="16" viewBox="0 0 16 16" style="flex:0 0 16px;margin-top:1px"><circle cx="8" cy="8" r="6.5" style="fill:none;stroke:currentColor;stroke-width:1.3"></circle><path d="M8 7v4M8 4.8v.1" style="stroke:currentColor;stroke-width:1.5;stroke-linecap:round"></path></svg>
-                <span>Switching camera makes your Baseline Stale. You'll be asked to Recalibrate before watching resumes.</span>
+                <span>{{ L.switchNote }}</span>
               </div>
               <div style="height:1px;background:var(--ln,#E3DED4)"></div>
               <div style="display:flex;align-items:center;gap:12px">
                 <div style="flex:1;display:flex;flex-direction:column;gap:2px">
-                  <div style="font-size:14px;font-weight:600">Baseline</div>
+                  <div style="font-size:14px;font-weight:600">{{ L.baseline }}</div>
                   <div style="font-size:13px;color:{{ baselineColor }}">{{ baselineText }}</div>
                 </div>
-                <button onClick="{{ openCal }}" style="height:34px;padding:0 14px;border-radius:10px;border:1px solid var(--ln,#E3DED4);background:transparent;color:var(--ink,#1F2A26);font-size:13px;font-weight:600;cursor:pointer">Recalibrate</button>
+                <button onClick="{{ openCal }}" style="height:34px;padding:0 14px;border-radius:10px;border:1px solid var(--ln,#E3DED4);background:transparent;color:var(--ink,#1F2A26);font-size:13px;font-weight:600;cursor:pointer">{{ L.recal }}</button>
               </div>
             </div>
 
             <div style="background:var(--cd,#FFFFFF);border:1px solid var(--ln,#E3DED4);border-radius:16px;padding:18px 22px;display:flex;align-items:center;gap:16px">
               <div style="flex:1;display:flex;flex-direction:column;gap:2px">
-                <div style="font-size:15px;font-weight:700">Start with Windows</div>
-                <div style="font-size:13px;color:var(--mu,#5E6A64)">Holdup starts in the tray when you sign in.</div>
+                <div style="font-size:15px;font-weight:700">{{ L.startWin }}</div>
+                <div style="font-size:13px;color:var(--mu,#5E6A64)">{{ L.startWinSub }}</div>
               </div>
               <button onClick="{{ toggleStart }}" style="width:44px;height:24px;flex:0 0 44px;border-radius:12px;border:none;padding:0;background:{{ tog.bg }};position:relative;cursor:pointer">
                 <div style="position:absolute;top:3px;left:{{ tog.x }}px;width:18px;height:18px;border-radius:50%;background:#FFFFFF;box-shadow:0 1px 2px rgba(0,0,0,.25)"></div>
@@ -311,8 +311,8 @@ button{font-family:inherit}
             <div style="background:var(--acs,#E0EEE6);border-radius:16px;padding:18px 22px;display:flex;gap:14px;align-items:flex-start">
               <svg width="22" height="22" viewBox="0 0 24 24" style="flex:0 0 22px"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" style="fill:none;stroke:var(--ac,#2F7D62);stroke-width:1.8"></rect><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" style="fill:none;stroke:var(--ac,#2F7D62);stroke-width:1.8"></path></svg>
               <div style="display:flex;flex-direction:column;gap:3px">
-                <div style="font-size:15px;font-weight:700">Your camera picture stays with you</div>
-                <div style="font-size:14px;line-height:1.45">Frames never leave this computer and are never saved. Holdup keeps only numbers, like how many minutes you sat in Good Posture.</div>
+                <div style="font-size:15px;font-weight:700">{{ L.privTitle }}</div>
+                <div style="font-size:14px;line-height:1.45">{{ L.privBody }}</div>
               </div>
             </div>
           </div>
@@ -324,11 +324,11 @@ button{font-family:inherit}
       <sc-if value="{{ confirm }}">
       <div style="position:absolute;inset:36px 0 0 0;background:var(--scrim,rgba(20,24,22,.38));display:grid;place-items:center;z-index:20">
         <div style="width:400px;max-width:calc(100% - 48px);background:var(--cd,#FFFFFF);border:1px solid var(--ln,#E3DED4);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:8px;box-shadow:0 16px 40px rgba(0,0,0,.2)">
-          <div style="font-size:18px;font-weight:700">Delete all Daily Stats?</div>
-          <div style="font-size:14px;color:var(--mu,#5E6A64);line-height:1.45">Your Baseline and settings are kept.</div>
+          <div style="font-size:18px;font-weight:700">{{ L.delTitle }}</div>
+          <div style="font-size:14px;color:var(--mu,#5E6A64);line-height:1.45">{{ L.delBody }}</div>
           <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
-            <button onClick="{{ cancelClear }}" style="height:36px;padding:0 16px;border-radius:10px;border:1px solid var(--ln,#E3DED4);background:transparent;color:var(--ink,#1F2A26);font-size:13px;font-weight:600;cursor:pointer">Cancel</button>
-            <button onClick="{{ doClear }}" style="height:36px;padding:0 16px;border-radius:10px;border:none;background:#C2453F;color:#FFFFFF;font-size:13px;font-weight:600;cursor:pointer">Delete Daily Stats</button>
+            <button onClick="{{ cancelClear }}" style="height:36px;padding:0 16px;border-radius:10px;border:1px solid var(--ln,#E3DED4);background:transparent;color:var(--ink,#1F2A26);font-size:13px;font-weight:600;cursor:pointer">{{ L.cancel }}</button>
+            <button onClick="{{ doClear }}" style="height:36px;padding:0 16px;border-radius:10px;border:none;background:#C2453F;color:#FFFFFF;font-size:13px;font-weight:600;cursor:pointer">{{ L.delBtn }}</button>
           </div>
         </div>
       </div>
@@ -338,9 +338,9 @@ button{font-family:inherit}
       <sc-if value="{{ calOpen }}">
       <div style="position:absolute;inset:36px 0 0 0;background:var(--bg,#F4F1EB);z-index:30;display:flex;flex-direction:column;padding:22px 30px 26px;gap:16px">
         <div style="display:flex;align-items:center;gap:12px">
-          <div style="font-size:22px;font-weight:700;flex:1">Calibration</div>
+          <div style="font-size:22px;font-weight:700;flex:1">{{ L.calibration }}</div>
           <sc-if value="{{ canCancel }}">
-            <button onClick="{{ cancelCal }}" style="height:34px;padding:0 14px;border-radius:10px;border:1px solid var(--ln,#E3DED4);background:transparent;color:var(--ink,#1F2A26);font-size:13px;font-weight:600;cursor:pointer">Cancel</button>
+            <button onClick="{{ cancelCal }}" style="height:34px;padding:0 14px;border-radius:10px;border:1px solid var(--ln,#E3DED4);background:transparent;color:var(--ink,#1F2A26);font-size:13px;font-weight:600;cursor:pointer">{{ L.cancel }}</button>
           </sc-if>
         </div>
         <div style="flex:1;min-height:0;display:flex;gap:28px;align-items:center">
@@ -348,7 +348,7 @@ button{font-family:inherit}
             <sc-if value="{{ cal.hasFeed }}">
               <div style="position:absolute;left:50%;top:14%;width:34%;height:50%;transform:translateX(-50%);border-radius:50%;border:2px {{ cal.guideStyle }} {{ cal.guide }}"></div>
               <div style="position:absolute;left:14%;right:14%;bottom:-20%;height:38%;border-radius:50% 50% 0 0;border:2px {{ cal.guideStyle }} {{ cal.guide }};border-bottom:none"></div>
-              <div style="position:absolute;top:12px;left:12px;display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.45);color:#FFFFFF;font-size:12px;font-weight:600;padding:5px 9px;border-radius:7px"><div style="width:7px;height:7px;border-radius:50%;background:#3FA36B"></div>Live preview</div>
+              <div style="position:absolute;top:12px;left:12px;display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.45);color:#FFFFFF;font-size:12px;font-weight:600;padding:5px 9px;border-radius:7px"><div style="width:7px;height:7px;border-radius:50%;background:#3FA36B"></div>{{ L.livePreview }}</div>
             </sc-if>
             <sc-if value="{{ cal.isCount }}">
               <div style="position:absolute;inset:0;display:grid;place-items:center;font-size:120px;font-weight:700;color:#FFFFFF;font-variant-numeric:tabular-nums">{{ count }}</div>
@@ -360,7 +360,7 @@ button{font-family:inherit}
               <div style="position:absolute;inset:0;display:grid;place-items:center"><div style="width:72px;height:72px;border-radius:50%;background:#2F7D62;display:grid;place-items:center"><svg width="34" height="34" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" style="fill:none;stroke:#FFFFFF;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round"></path></svg></div></div>
             </sc-if>
             <sc-if value="{{ cal.isCamFail }}">
-              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#9BA6A1"><svg width="40" height="40" viewBox="0 0 24 24"><rect x="2.5" y="6.5" width="13" height="11" rx="2.5" style="fill:none;stroke:currentColor;stroke-width:1.5"></rect><path d="M15.5 10.5l5-3v9l-5-3" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round"></path><path d="M3 3l18 18" style="stroke:currentColor;stroke-width:1.5;stroke-linecap:round"></path></svg><span style="font-size:13px">No picture</span></div>
+              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#9BA6A1"><svg width="40" height="40" viewBox="0 0 24 24"><rect x="2.5" y="6.5" width="13" height="11" rx="2.5" style="fill:none;stroke:currentColor;stroke-width:1.5"></rect><path d="M15.5 10.5l5-3v9l-5-3" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round"></path><path d="M3 3l18 18" style="stroke:currentColor;stroke-width:1.5;stroke-linecap:round"></path></svg><span style="font-size:13px">{{ L.noPicture }}</span></div>
             </sc-if>
           </div>
           <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:10px">
@@ -368,9 +368,9 @@ button{font-family:inherit}
             <div style="font-size:24px;font-weight:700;line-height:1.25;letter-spacing:-0.01em;text-wrap:pretty">{{ cal.title }}</div>
             <div style="font-size:15px;color:var(--mu,#5E6A64);line-height:1.5;text-wrap:pretty">{{ cal.body }}</div>
             <div style="display:flex;gap:8px;margin-top:12px">
-              <sc-if value="{{ cal.showStart }}"><button onClick="{{ startFlow }}" style="height:40px;padding:0 20px;border-radius:10px;border:none;background:var(--ac,#2F7D62);color:var(--aci,#FFFFFF);font-size:14px;font-weight:600;cursor:pointer">Start</button></sc-if>
-              <sc-if value="{{ cal.showRetry }}"><button onClick="{{ startFlow }}" style="height:40px;padding:0 20px;border-radius:10px;border:none;background:var(--ac,#2F7D62);color:var(--aci,#FFFFFF);font-size:14px;font-weight:600;cursor:pointer">Retry</button></sc-if>
-              <sc-if value="{{ cal.showDone }}"><button onClick="{{ doneCal }}" style="height:40px;padding:0 20px;border-radius:10px;border:none;background:var(--ac,#2F7D62);color:var(--aci,#FFFFFF);font-size:14px;font-weight:600;cursor:pointer">Done</button></sc-if>
+              <sc-if value="{{ cal.showStart }}"><button onClick="{{ startFlow }}" style="height:40px;padding:0 20px;border-radius:10px;border:none;background:var(--ac,#2F7D62);color:var(--aci,#FFFFFF);font-size:14px;font-weight:600;cursor:pointer">{{ L.start }}</button></sc-if>
+              <sc-if value="{{ cal.showRetry }}"><button onClick="{{ startFlow }}" style="height:40px;padding:0 20px;border-radius:10px;border:none;background:var(--ac,#2F7D62);color:var(--aci,#FFFFFF);font-size:14px;font-weight:600;cursor:pointer">{{ L.retry }}</button></sc-if>
+              <sc-if value="{{ cal.showDone }}"><button onClick="{{ doneCal }}" style="height:40px;padding:0 20px;border-radius:10px;border:none;background:var(--ac,#2F7D62);color:var(--aci,#FFFFFF);font-size:14px;font-weight:600;cursor:pointer">{{ L.done }}</button></sc-if>
             </div>
           </div>
         </div>
@@ -382,7 +382,7 @@ button{font-family:inherit}
 
 <section style="padding:32px 64px;display:flex;flex-direction:column;gap:20px">
   <div style="display:flex;align-items:baseline;gap:16px">
-    <div style="font-size:28px;font-weight:700;letter-spacing:-0.01em">Mirror</div>
+    <div style="font-size:28px;font-weight:700;letter-spacing:-0.01em">{{ L.mirror }}</div>
     <div style="font-size:14px;color:#5E6A64">320×240 · frameless · always on top · bottom-left · nothing clickable · hides when posture recovers</div>
   </div>
   <div style="display:flex;gap:32px;flex-wrap:wrap;align-items:flex-end">
@@ -390,7 +390,7 @@ button{font-family:inherit}
       <div style="width:320px;height:240px;position:relative;background:radial-gradient(ellipse at 50% 40%,#3C4642,#1B201E 75%);box-shadow:inset 0 0 0 3px #E2A45C,0 8px 24px rgba(0,0,0,.25)">
         <div style="position:absolute;left:50%;top:16%;width:30%;height:46%;transform:translateX(-50%);border-radius:50%;background:rgba(255,255,255,.07)"></div>
         <div style="position:absolute;left:16%;right:16%;bottom:0;height:30%;border-radius:50% 50% 0 0;background:rgba(255,255,255,.07)"></div>
-        <div style="position:absolute;left:10px;bottom:10px;background:#E2A45C;color:#241808;font-size:12px;font-weight:700;padding:4px 8px;border-radius:6px">Forward Lean</div>
+        <div style="position:absolute;left:10px;bottom:10px;background:#E2A45C;color:#241808;font-size:12px;font-weight:700;padding:4px 8px;border-radius:6px">{{ L.fwd }}</div>
       </div>
       <div style="font-size:13px;color:#5E6A64">Forward Lean — amber edge</div>
     </div>
@@ -398,7 +398,7 @@ button{font-family:inherit}
       <div style="width:320px;height:240px;position:relative;background:radial-gradient(ellipse at 50% 40%,#3C4642,#1B201E 75%);box-shadow:inset 0 0 0 3px #A0A7E6,0 8px 24px rgba(0,0,0,.25)">
         <div style="position:absolute;left:50%;top:16%;width:30%;height:46%;transform:translateX(-50%);border-radius:50%;background:rgba(255,255,255,.07)"></div>
         <div style="position:absolute;left:16%;right:16%;bottom:0;height:30%;border-radius:50% 50% 0 0;background:rgba(255,255,255,.07)"></div>
-        <div style="position:absolute;left:10px;bottom:10px;background:#A0A7E6;color:#16183A;font-size:12px;font-weight:700;padding:4px 8px;border-radius:6px">Side Lean</div>
+        <div style="position:absolute;left:10px;bottom:10px;background:#A0A7E6;color:#16183A;font-size:12px;font-weight:700;padding:4px 8px;border-radius:6px">{{ L.side }}</div>
       </div>
       <div style="font-size:13px;color:#5E6A64">Side Lean — periwinkle edge</div>
     </div>
@@ -464,22 +464,104 @@ button{font-family:inherit}
   </div>
 </section>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;'light'|'dark'&quot;},&quot;showControls&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;'light'|'dark'&quot;},&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;en&quot;,&quot;pt&quot;],&quot;default&quot;:&quot;en&quot;,&quot;tsType&quot;:&quot;'en'|'pt'&quot;},&quot;showControls&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
 const THEMES = {
   light: { bg:'#F4F1EB', sb:'#ECE7DE', cd:'#FFFFFF', ink:'#1F2A26', mu:'#5E6A64', ln:'#E3DED4', sf:'#F7F4EE', ac:'#2F7D62', acs:'#E0EEE6', aci:'#FFFFFF', fw:'#C27A26', fws:'#F7EBDA', sd:'#6870B5', sds:'#E8E9F6', wn:'#FBF0E1', wni:'#7A4A12', scrim:'rgba(20,24,22,.38)' },
   dark:  { bg:'#161B19', sb:'#1B211F', cd:'#222A27', ink:'#E8EDEA', mu:'#9BA6A1', ln:'#313B37', sf:'#1C2321', ac:'#5DBB93', acs:'#22382E', aci:'#0F1A15', fw:'#E2A45C', fws:'#3A2D1E', sd:'#A0A7E6', sds:'#2A2D45', wn:'#33291C', wni:'#F1C58F', scrim:'rgba(0,0,0,.55)' }
 };
-const STATUS = {
-  watching:    { label:'Watching', color:'#3FA36B', since:'since 09:12', sub:'You are sitting well. Holdup is quietly keeping an eye on your posture.' },
-  absent:      { label:'Absent', color:'#8C948F', since:'since 13:41', sub:'Nobody is in front of the camera. Watching picks up again when you are back.' },
-  camera:      { label:'Camera Unavailable', color:'#E07A2E', since:'since 13:55', sub:'Watching is on hold until the camera can be read.' },
-  stale:       { label:'Stale Baseline', color:'#D9534F', since:'', sub:'Watching is on hold until you Recalibrate.' },
-  paused:      { label:'Paused', color:'#E3B53B', since:'', sub:'Holdup is not watching right now. Your Watched Time is not counting.' },
-  calibrating: { label:'Calibrating', color:'#4C8BD6', since:'', sub:'Capturing your Baseline. Hold still for a moment.' }
-};
+const STATUS_COLORS = { watching:'#3FA36B', absent:'#8C948F', camera:'#E07A2E', stale:'#D9534F', paused:'#E3B53B', calibrating:'#4C8BD6' };
+const SINCE = { watching:'09:12', absent:'13:41', camera:'13:55' };
 const CAMS = ['Integrated Camera', 'Logitech C920 HD Pro Webcam'];
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const WD = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const SENS_ZONE = { low:78, medium:50, high:26 };
+
+const STR = {
+  en: {
+    today:'Today', history:'History', settings:'Settings', date:'Friday, 16 October', yesterday:'Yesterday',
+    camTitle:"Holdup can't read your camera",
+    camBody:'It may be unplugged, covered, or in use by another app such as a video call. Holdup keeps trying on its own and starts watching again when the camera is free.',
+    tryAgain:'Try again', chooseCam:'Choose another camera',
+    staleTitle:'Your camera view has changed',
+    staleBody:'Your Baseline no longer matches what the camera sees, so Holdup has stopped watching for now. Recalibrate and it picks up right away.',
+    recal:'Recalibrate', resume:'Resume', watched:'Watched Time', good:'Good Posture', fwd:'Forward Lean', side:'Side Lean', mirror:'Mirror',
+    timesToday:'times today', mirrorNote:'The Mirror shows you your camera picture when Bad Posture lasts too long.',
+    last7:'Last 7 days', last30:'Last 30 days', clear:'Clear statistics',
+    emptyTitle:'No Daily Stats yet', emptyBody:"Once Holdup has watched you for a while, each day's Good Posture, Forward Lean and Side Lean show up here.",
+    chartTitle:'Good Posture per day', average:'Average', across:'across', daysWith:'days with Watched Time',
+    dailyStats:'Daily Stats', day:'Day', noWatched:'No Watched Time',
+    sens:'Sensitivity', sensExplain:'How far from your Baseline you may sit before it counts as Bad Posture.', bad:'Bad Posture', baseline:'Baseline',
+    camera:'Camera', plugIn:'Plug in a camera and it shows up here.', noCamera:'No camera found',
+    switchNote:"Switching camera makes your Baseline Stale. You'll be asked to Recalibrate before watching resumes.",
+    baseNeeds:'Needs a camera', baseStale:'Stale — the camera view changed. Recalibrate to resume watching.', baseOk:'Captured today at 09:10',
+    startWin:'Start with Windows', startWinSub:'Holdup starts in the tray when you sign in.',
+    privTitle:'Your camera picture stays with you', privBody:'Frames never leave this computer and are never saved. Holdup keeps only numbers, like how many minutes you sat in Good Posture.',
+    delTitle:'Delete all Daily Stats?', delBody:'Your Baseline and settings are kept.', cancel:'Cancel', delBtn:'Delete Daily Stats',
+    calibration:'Calibration', livePreview:'Live preview', noPicture:'No picture', start:'Start', retry:'Retry', done:'Done',
+    pause30:'Pause for 30 minutes', pause60:'Pause for 1 hour', pauseInf:'Pause until resumed',
+    since:'since', pausedUntil:'Paused until', pausedUntilResumed:'Paused until resumed',
+    st: {
+      watching:['Watching','You are sitting well. Holdup is quietly keeping an eye on your posture.'],
+      absent:['Absent','Nobody is in front of the camera. Watching picks up again when you are back.'],
+      camera:['Camera Unavailable','Watching is on hold until the camera can be read.'],
+      stale:['Stale Baseline','Watching is on hold until you Recalibrate.'],
+      paused:['Paused','Holdup is not watching right now. Your Watched Time is not counting.'],
+      calibrating:['Calibrating','Capturing your Baseline. Hold still for a moment.']
+    },
+    sensL: { low:['Low','You can move quite a bit away from your Baseline before it counts as Bad Posture.'], medium:['Medium','A balanced margin around your Baseline. Good for most people.'], high:['High','Only small shifts away from your Baseline are allowed. Good if you want a firm nudge.'] },
+    cal: {
+      ready:['Get ready','Sit up straight, the way you want to sit, facing your screen.','Holdup captures this as your Baseline. It takes about five seconds.'],
+      countdown:['Get ready','Capturing in {n}…','Sit up straight, the way you want to sit, facing your screen.'],
+      hold:['Capturing','Hold still…','Keep looking at your screen for a moment.'],
+      success:['All set','Your Baseline is captured.','Holdup is now watching your posture.'],
+      failView:['Let’s try again','Make sure you are in view and hold still','Your head and shoulders should sit inside the outline.'],
+      failCam:['Let’s try again',"The camera can't be read",'Check that it is plugged in, not covered, and not being used by another app.']
+    },
+    wd:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], mo:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    rowDay:(w,d,m) => `${w} ${d} ${m}`, short:(d,m) => `${d} ${m}`
+  },
+  pt: {
+    today:'Hoje', history:'Histórico', settings:'Configurações', date:'Sexta-feira, 16 de outubro', yesterday:'Ontem',
+    camTitle:'O Holdup não consegue ler sua câmera',
+    camBody:'Ela pode estar desconectada, coberta ou em uso por outro app, como uma chamada de vídeo. O Holdup continua tentando sozinho e volta a monitorar quando a câmera estiver livre.',
+    tryAgain:'Tentar novamente', chooseCam:'Escolher outra câmera',
+    staleTitle:'A imagem da câmera mudou',
+    staleBody:'Sua Referência não corresponde mais ao que a câmera vê, por isso o Holdup parou de monitorar por enquanto. Recalibre e ele volta na hora.',
+    recal:'Recalibrar', resume:'Retomar', watched:'Tempo Monitorado', good:'Boa Postura', fwd:'Inclinação para Frente', side:'Inclinação Lateral', mirror:'Espelho',
+    timesToday:'vezes hoje', mirrorNote:'O Espelho mostra a imagem da sua câmera quando a Má Postura dura tempo demais.',
+    last7:'Últimos 7 dias', last30:'Últimos 30 dias', clear:'Limpar estatísticas',
+    emptyTitle:'Ainda não há Estatísticas Diárias', emptyBody:'Depois que o Holdup monitorar você por um tempo, a Boa Postura, a Inclinação para Frente e a Inclinação Lateral de cada dia aparecem aqui.',
+    chartTitle:'Boa Postura por dia', average:'Média de', across:'em', daysWith:'dias com Tempo Monitorado',
+    dailyStats:'Estatísticas Diárias', day:'Dia', noWatched:'Sem Tempo Monitorado',
+    sens:'Sensibilidade', sensExplain:'Quanto você pode se afastar da sua Referência antes de contar como Má Postura.', bad:'Má Postura', baseline:'Referência',
+    camera:'Câmera', plugIn:'Conecte uma câmera e ela aparecerá aqui.', noCamera:'Nenhuma câmera encontrada',
+    switchNote:'Trocar de câmera deixa sua Referência Desatualizada. Será preciso Recalibrar antes de o monitoramento voltar.',
+    baseNeeds:'Precisa de uma câmera', baseStale:'Desatualizada — a imagem da câmera mudou. Recalibre para voltar a monitorar.', baseOk:'Capturada hoje às 09:10',
+    startWin:'Iniciar com o Windows', startWinSub:'O Holdup abre na bandeja quando você entra no Windows.',
+    privTitle:'A imagem da sua câmera fica com você', privBody:'As imagens nunca saem deste computador e nunca são salvas. O Holdup guarda apenas números, como quantos minutos você ficou em Boa Postura.',
+    delTitle:'Excluir todas as Estatísticas Diárias?', delBody:'Sua Referência e suas configurações serão mantidas.', cancel:'Cancelar', delBtn:'Excluir Estatísticas Diárias',
+    calibration:'Calibração', livePreview:'Prévia ao vivo', noPicture:'Sem imagem', start:'Iniciar', retry:'Tentar novamente', done:'Concluir',
+    pause30:'Pausar por 30 minutos', pause60:'Pausar por 1 hora', pauseInf:'Pausar até retomar',
+    since:'desde', pausedUntil:'Pausado até', pausedUntilResumed:'Pausado até retomar',
+    st: {
+      watching:['Monitorando','Você está com uma boa postura. O Holdup está de olho, discretamente.'],
+      absent:['Ausente','Ninguém está em frente à câmera. O monitoramento volta quando você retornar.'],
+      camera:['Câmera Indisponível','O monitoramento está em espera até a câmera poder ser lida.'],
+      stale:['Referência Desatualizada','O monitoramento está em espera até você Recalibrar.'],
+      paused:['Pausado','O Holdup não está monitorando agora. O Tempo Monitorado não está contando.'],
+      calibrating:['Calibrando','Capturando sua Referência. Fique parado por um instante.']
+    },
+    sensL: { low:['Baixa','Você pode se afastar bastante da sua Referência antes de contar como Má Postura.'], medium:['Média','Uma margem equilibrada em torno da sua Referência. Boa para a maioria das pessoas.'], high:['Alta','Só pequenos desvios da sua Referência são permitidos. Boa se você quer um lembrete firme.'] },
+    cal: {
+      ready:['Prepare-se','Sente-se com a postura ereta, do jeito que você quer ficar, de frente para a tela.','O Holdup captura isso como sua Referência. Leva cerca de cinco segundos.'],
+      countdown:['Prepare-se','Capturando em {n}…','Sente-se com a postura ereta, do jeito que você quer ficar, de frente para a tela.'],
+      hold:['Capturando','Fique parado…','Continue olhando para a tela por um instante.'],
+      success:['Tudo pronto','Sua Referência foi capturada.','O Holdup agora está monitorando sua postura.'],
+      failView:['Vamos tentar de novo','Verifique se você está visível e fique parado','Sua cabeça e seus ombros devem ficar dentro do contorno.'],
+      failCam:['Vamos tentar de novo','Não é possível ler a câmera','Verifique se ela está conectada, descoberta e sem uso por outro app.']
+    },
+    wd:['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'], mo:['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'],
+    rowDay:(w,d,m) => `${w}, ${d} ${m}`, short:(d,m) => `${d} ${m}`
+  }
+};
 const fmt = m => { const h = Math.floor(m/60), r = m%60; return h ? `${h} h ${r} min` : `${r} min`; };
 
 function buildDays() {
@@ -500,11 +582,14 @@ function buildDays() {
 const DAYS = buildDays();
 
 class Component extends DCLogic {
-  state = { theme: this.props.theme ?? 'light', compact:false, screen:'today', status:'watching', pausedUntil:'14:30',
+  state = { theme: this.props.theme ?? 'dark', lang: this.props.lang ?? 'en', compact:false, screen:'today', status:'watching', pausedUntil:'14:30',
     calOpen:false, calState:'ready', count:3, prog:0, prevStatus:'watching', range:7, cleared:false, confirm:false,
     sens:'medium', camera:CAMS[0], noCam:false, camOpen:false, startWin:true };
 
-  componentDidUpdate(pp) { if (pp.theme !== this.props.theme && this.props.theme) this.setState({ theme:this.props.theme }); }
+  componentDidUpdate(pp) {
+    if (pp.theme !== this.props.theme && this.props.theme) this.setState({ theme:this.props.theme });
+    if (pp.lang !== this.props.lang && this.props.lang) this.setState({ lang:this.props.lang });
+  }
   componentWillUnmount() { this.stop(); }
   stop() { clearInterval(this._iv); }
   startFlow = () => {
@@ -531,18 +616,17 @@ class Component extends DCLogic {
   setCalState = (k) => { this.stop(); this.setState(s => ({ calOpen:true, calState:k, count:3, prog: k === 'hold' ? 55 : 0, prevStatus: s.status === 'calibrating' ? s.prevStatus : s.status, status:'calibrating' })); };
 
   renderVals() {
-    const s = this.state, t = THEMES[s.theme];
-    const meta = STATUS[s.status];
-    const st = { ...meta, soft: meta.color + '2E', title: meta.label };
-    if (s.status === 'paused') { st.title = s.pausedUntil ? `Paused until ${s.pausedUntil}` : 'Paused until resumed'; }
+    const s = this.state, t = THEMES[s.theme], L = STR[s.lang] || STR.en;
+    const color = STATUS_COLORS[s.status], [label, sub] = L.st[s.status];
+    const st = { label, sub, color, soft: color + '2E', title: label, since: SINCE[s.status] ? `${L.since} ${SINCE[s.status]}` : '' };
+    if (s.status === 'paused') st.title = s.pausedUntil ? `${L.pausedUntil} ${s.pausedUntil}` : L.pausedUntilResumed;
     const isPaused = s.status === 'paused';
     const pauseOpt = (label, until) => {
       const on = isPaused && s.pausedUntil === until;
       return { label, onClick: () => this.setState({ status:'paused', pausedUntil:until }), bg: on ? 'var(--acs,#E0EEE6)' : 'transparent', bd: on ? 'var(--ac,#2F7D62)' : 'var(--ln,#E3DED4)' };
     };
-    const pauseBtns = [pauseOpt('Pause for 30 minutes','14:30'), pauseOpt('Pause for 1 hour','15:00'), pauseOpt('Pause until resumed','')];
+    const pauseBtns = [pauseOpt(L.pause30,'14:30'), pauseOpt(L.pause60,'15:00'), pauseOpt(L.pauseInf,'')];
 
-    // history
     const slice = DAYS.slice(0, s.range);
     const active = slice.filter(d => !d.empty);
     const avgGood = active.length ? Math.round(active.reduce((a,d) => a + d.good, 0) / active.length) : 0;
@@ -550,28 +634,24 @@ class Component extends DCLogic {
       h: d.empty ? 1.5 : d.good,
       fill: d.empty ? 'var(--ln,#E3DED4)' : 'var(--ac,#2F7D62)',
       top: s.range === 7 && !d.empty ? d.good + '%' : '',
-      label: s.range === 7 ? (d.i === 0 ? 'Today' : WD[d.dow]) : (d.i % 5 === 0 ? (d.i === 0 ? 'Today' : `${d.d.getDate()} ${MONTHS[d.d.getMonth()]}`) : ''),
+      label: s.range === 7 ? (d.i === 0 ? L.today : L.wd[d.dow]) : (d.i % 5 === 0 ? (d.i === 0 ? L.today : L.short(d.d.getDate(), L.mo[d.d.getMonth()])) : ''),
       lw: d.i === 0 ? 700 : 400,
-      tip: d.empty ? 'No Watched Time' : `Good Posture ${d.good}%`
+      tip: d.empty ? L.noWatched : `${L.good} ${d.good}%`
     }));
     const rows = slice.map(d => ({
-      day: d.i === 0 ? 'Today' : d.i === 1 ? 'Yesterday' : `${WD[d.dow]} ${d.d.getDate()} ${MONTHS[d.d.getMonth()]}`,
+      day: d.i === 0 ? L.today : d.i === 1 ? L.yesterday : L.rowDay(L.wd[d.dow], d.d.getDate(), L.mo[d.d.getMonth()]),
       empty: d.empty, full: !d.empty, time: fmt(d.min), good: d.good, fwd: d.fwd, side: d.side, mirror: d.mirror
     }));
 
-    // settings
-    const SENS = { low:['Low','You can move quite a bit away from your Baseline before it counts as Bad Posture.',78],
-      medium:['Medium','A balanced margin around your Baseline. Good for most people.',50],
-      high:['High','Only small shifts away from your Baseline are allowed. Good if you want a firm nudge.',26] };
-    const sensBtns = Object.keys(SENS).map(k => ({ label:SENS[k][0], onClick:() => this.setState({ sens:k }), bg: s.sens === k ? 'var(--cd,#FFFFFF)' : 'transparent' }));
+    const sensBtns = ['low','medium','high'].map(k => ({ label:L.sensL[k][0], onClick:() => this.setState({ sens:k }), bg: s.sens === k ? 'var(--cd,#FFFFFF)' : 'transparent' }));
     const camItems = CAMS.map(c => ({ label:c, check: c === s.camera ? '✓' : '', bg: c === s.camera ? 'var(--sf,#F7F4EE)' : 'transparent',
       onClick: () => this.setState(p => ({ camOpen:false, camera:c, status: c !== p.camera ? 'stale' : p.status })) }));
     const stale = s.status === 'stale' || (s.status === 'calibrating' && s.prevStatus === 'stale');
 
-    // controls
     const chip = (label, on, fn) => ({ label, onClick:fn, bg: on ? '#1F2A26' : '#FFFFFF', fg: on ? '#FFFFFF' : '#1F2A26', bd: on ? '#1F2A26' : '#D6D1C7' });
     const set = o => () => { this.stop(); this.setState(o); };
     const ctrlGroups = [
+      { title:'Language', items:[chip('English (US)', s.lang==='en', set({lang:'en'})), chip('Português (BR)', s.lang==='pt', set({lang:'pt'}))] },
       { title:'Theme', items:[chip('Light', s.theme==='light', set({theme:'light'})), chip('Dark', s.theme==='dark', set({theme:'dark'}))] },
       { title:'Window size', items:[chip('960×640', !s.compact, set({compact:false})), chip('760×520 (min)', s.compact, set({compact:true}))] },
       { title:'Screen', items:['today','history','settings'].map(k => chip(k[0].toUpperCase()+k.slice(1), s.screen===k && !s.calOpen, set({screen:k, calOpen:false, confirm:false}))) },
@@ -591,18 +671,9 @@ class Component extends DCLogic {
       { title:'Cameras', items:[chip('Connected', !s.noCam, set({noCam:false})), chip('No camera found', s.noCam, set({noCam:true, camOpen:false, screen:'settings'}))] }
     ];
 
-    // calibration view
-    const CAL = {
-      ready:    { kicker:'Get ready', title:'Sit up straight, the way you want to sit, facing your screen.', body:'Holdup captures this as your Baseline. It takes about five seconds.' },
-      countdown:{ kicker:'Get ready', title:`Capturing in ${s.count}…`, body:'Sit up straight, the way you want to sit, facing your screen.' },
-      hold:     { kicker:'Capturing', title:'Hold still…', body:'Keep looking at your screen for a moment.' },
-      success:  { kicker:'All set', title:'Your Baseline is captured.', body:'Holdup is now watching your posture.' },
-      failView: { kicker:'Let\u2019s try again', title:'Make sure you are in view and hold still', body:'Your head and shoulders should sit inside the outline.' },
-      failCam:  { kicker:'Let\u2019s try again', title:"The camera can't be read", body:'Check that it is plugged in, not covered, and not being used by another app.' }
-    };
-    const k = s.calState, c = CAL[k];
+    const k = s.calState, [kicker, title, body] = L.cal[k];
     const fail = k === 'failView' || k === 'failCam';
-    const cal = { ...c,
+    const cal = { kicker, title: title.replace('{n}', s.count), body,
       kickerColor: fail ? 'var(--wni,#7A4A12)' : 'var(--ac,#2F7D62)',
       feedBg: k === 'failCam' ? '#202624' : 'radial-gradient(ellipse at 50% 40%, #46504B, #1B201E 78%)',
       hasFeed: k !== 'failCam',
@@ -623,8 +694,8 @@ class Component extends DCLogic {
     ].map(x => ({ ...x, notPause: !x.pause }));
 
     return {
-      showControls: this.props.showControls ?? true, ctrlGroups, t,
-      winW: s.compact ? 760 : 960, winH: s.compact ? 520 : 640, sideW: s.compact ? 60 : 196, showLabels: !s.compact,
+      L, showControls: this.props.showControls ?? true, ctrlGroups, t,
+      winW: s.compact ? 760 : 960, winH: s.compact ? 520 : 640, sideW: s.compact ? 60 : (s.lang === 'pt' ? 212 : 196), showLabels: !s.compact,
       nav: { today:navBg('today'), history:navBg('history'), settings:navBg('settings') },
       goToday: () => this.setState({ screen:'today' }), goHistory: () => this.setState({ screen:'history' }), goSettings: () => this.setState({ screen:'settings' }),
       isToday: s.screen === 'today', isHistory: s.screen === 'history', isSettings: s.screen === 'settings',
@@ -636,10 +707,10 @@ class Component extends DCLogic {
       cleared: s.cleared, hasStats: !s.cleared, clearOpacity: s.cleared ? 0.45 : 1,
       askClear: () => this.setState({ confirm:true }), cancelClear: () => this.setState({ confirm:false }), doClear: () => this.setState({ confirm:false, cleared:true }),
       confirm: s.confirm, chart, rows, avgGood, activeDays: active.length, barGap: s.range === 7 ? 14 : 4,
-      sensBtns, sensDesc: SENS[s.sens][1], zoneW: SENS[s.sens][2],
-      noCam: s.noCam, camOpen: s.camOpen && !s.noCam, camItems, camLabel: s.noCam ? 'No camera found' : s.camera, camOpacity: s.noCam ? 0.6 : 1,
+      sensBtns, sensDesc: L.sensL[s.sens][1], zoneW: SENS_ZONE[s.sens],
+      noCam: s.noCam, camOpen: s.camOpen && !s.noCam, camItems, camLabel: s.noCam ? L.noCamera : s.camera, camOpacity: s.noCam ? 0.6 : 1,
       toggleCamMenu: () => this.setState(p => ({ camOpen: !p.camOpen })),
-      baselineText: s.noCam ? 'Needs a camera' : stale ? 'Stale — the camera view changed. Recalibrate to resume watching.' : 'Captured today at 09:10',
+      baselineText: s.noCam ? L.baseNeeds : stale ? L.baseStale : L.baseOk,
       baselineColor: stale ? 'var(--wni,#7A4A12)' : 'var(--mu,#5E6A64)',
       tog: { bg: s.startWin ? 'var(--ac,#2F7D62)' : 'var(--ln,#E3DED4)', x: s.startWin ? 23 : 3 }, toggleStart: () => this.setState(p => ({ startWin: !p.startWin })),
       calOpen: s.calOpen, cal, count: s.count, prog: s.prog, prevW, prevH: prevW * 3 / 4, canCancel: k !== 'success',

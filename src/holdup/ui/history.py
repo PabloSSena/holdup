@@ -11,11 +11,10 @@ from PySide6.QtWidgets import (
 
 from holdup.posture_monitor import DailyStats, PostureMonitor
 from holdup.ui.actions import Actions
+from holdup.ui.strings import day_month, short_date, tr, weekday
 from holdup.ui.theme import CARD_MARGINS, PAGE_MARGINS, THEMES
 
 STATS_COLUMNS = ("Good Posture", "Forward Lean", "Side Lean", "Mirror")
-WEEKDAYS = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")  # not strftime: that follows the locale
-MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
 
 @dataclass(frozen=True)
@@ -50,19 +49,15 @@ def _watched_time(seconds: float) -> str:
 
 
 def _day(day: date, today: date) -> str:
-    return {0: "Today", 1: "Yesterday"}.get((today - day).days, f"{WEEKDAYS[day.weekday()]} {_date(day)}")
-
-
-def _date(day: date) -> str:
-    return f"{day.day} {MONTHS[day.month - 1]}"
+    return {0: tr("Today"), 1: tr("Yesterday")}.get((today - day).days, short_date(day))
 
 
 def _bar_label(ago: int, day: date, days: int) -> str:
     if ago == 0:
-        return "Today"
+        return tr("Today")
     if days <= 7:
-        return WEEKDAYS[day.weekday()]
-    return _date(day) if ago % 5 == 0 else ""
+        return weekday(day)
+    return day_month(day) if ago % 5 == 0 else ""
 
 
 def history(stats: dict[date, DailyStats], today: date, days: int) -> History:
@@ -140,7 +135,7 @@ class _Chart(QWidget):
             x = event.pos().x()
             bar = next((bar for bar, slot in zip(self._bars, self._slots()) if slot.left() <= x <= slot.right()), None)
             if bar:
-                QToolTip.showText(event.globalPos(), "No Watched Time" if bar.good is None else f"Good Posture {bar.good}%")
+                QToolTip.showText(event.globalPos(), tr("No Watched Time") if bar.good is None else tr("Good Posture {}%").format(bar.good))
             else:
                 QToolTip.hideText()
             return True
@@ -221,13 +216,13 @@ class _Confirm(QFrame):
         dialog, layout = _card((24, 24, 24, 24), 8)
         dialog.setFixedWidth(min(400, window.width() - 48))
         dialog.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=40, offset=QPointF(0, 16), color=QColor(0, 0, 0, 51)))
-        layout.addWidget(_label("Delete all Daily Stats?", "dialog-title"))
-        layout.addWidget(_label("Your Baseline and settings are kept.", "muted"))
+        layout.addWidget(_label(tr("Delete all Daily Stats?"), "dialog-title"))
+        layout.addWidget(_label(tr("Your Baseline and settings are kept."), "muted"))
         buttons = QHBoxLayout()
         buttons.setContentsMargins(0, 16, 0, 0)
         buttons.setSpacing(8)
         buttons.addStretch()
-        cancel, delete = QPushButton("Cancel"), QPushButton("Delete Daily Stats")
+        cancel, delete = QPushButton(tr("Cancel")), QPushButton(tr("Delete Daily Stats"))
         delete.setProperty("role", "danger")
         cancel.clicked.connect(self.close)
         delete.clicked.connect(lambda: (on_delete(), self.close()))
@@ -278,7 +273,7 @@ class HistoryPage(QWidget):
 
         header = QHBoxLayout()
         header.setSpacing(12)
-        header.addWidget(_label("History", "title"), 1)
+        header.addWidget(_label(tr("History"), "title"), 1)
         segment = QFrame()
         segment.setProperty("role", "segment")
         toggle = QHBoxLayout(segment)
@@ -286,13 +281,13 @@ class HistoryPage(QWidget):
         toggle.setSpacing(2)
         self._range = QButtonGroup(self)
         for days in (7, 30):
-            button = QPushButton(f"Last {days} days", checkable=True, checked=days == self._days)
+            button = QPushButton(tr("Last {} days").format(days), checkable=True, checked=days == self._days)
             button.setCursor(Qt.PointingHandCursor)
             button.clicked.connect(lambda _=False, days=days: self._set_days(days))
             self._range.addButton(button)
             toggle.addWidget(button)
         header.addWidget(segment)
-        self._clear = QPushButton("Clear statistics", objectName="clear")
+        self._clear = QPushButton(tr("Clear statistics"), objectName="clear")
         self._clear.setCursor(Qt.PointingHandCursor)
         self._clear.clicked.connect(lambda: _Confirm(self.window(), self._delete))
         header.addWidget(self._clear)
@@ -301,9 +296,9 @@ class HistoryPage(QWidget):
         self._empty, empty = _card((32, 56, 32, 56), 10)
         empty.addWidget(_EmptyIcon(), 0, Qt.AlignHCenter)
         empty.addSpacing(6)
-        empty.addWidget(_label("No Daily Stats yet", "dialog-title", Qt.AlignHCenter))
-        hint = _label("Once Holdup has watched you for a while, each day's Good Posture, Forward Lean and Side Lean "
-                      "show up here.", "muted", Qt.AlignHCenter)
+        empty.addWidget(_label(tr("No Daily Stats yet"), "dialog-title", Qt.AlignHCenter))
+        hint = _label(tr("Once Holdup has watched you for a while, each day's Good Posture, Forward Lean and Side "
+                         "Lean show up here."), "muted", Qt.AlignHCenter)
         hint.setWordWrap(True)
         hint.setMaximumWidth(360)
         centred = QHBoxLayout()  # not an alignment flag: that breaks the wrapped label's height
@@ -316,7 +311,7 @@ class HistoryPage(QWidget):
         self._chart_card, chart = _card()
         top = QHBoxLayout()
         top.setSpacing(4)
-        top.addWidget(_label("Good Posture per day", "heading"), 1)
+        top.addWidget(_label(tr("Good Posture per day"), "heading"), 1)
         self._average = [_label(role="small-muted"), _label(role="small-strong"), _label(role="small-muted")]
         for label in self._average:
             top.addWidget(label)
@@ -326,10 +321,10 @@ class HistoryPage(QWidget):
         layout.addWidget(self._chart_card)
 
         self._table, table = _card((0, 8, 0, 8), 0)
-        heading = _label("Daily Stats", "heading")
+        heading = _label(tr("Daily Stats"), "heading")
         heading.setContentsMargins(22, 10, 22, 12)
         table.addWidget(heading)
-        columns: list[QWidget] = [_label("Day", "column"), _label("Watched Time", "column")]
+        columns: list[QWidget] = [_label(tr("Day"), "column"), _label(tr("Watched Time"), "column")]
         for name, swatch in zip(STATS_COLUMNS, ("good", "forward", "side")):
             cell = QWidget()
             row = QHBoxLayout(cell)
@@ -340,9 +335,11 @@ class HistoryPage(QWidget):
             dot.setFixedSize(8, 8)
             dot.setProperty("role", f"swatch-{swatch}")
             row.addWidget(dot)
-            row.addWidget(_label(name, "column"))
+            name_label = _label(tr(name), "column", Qt.AlignRight)
+            name_label.setWordWrap(True)  # the Portuguese names take two lines, as in the design
+            row.addWidget(name_label)
             columns.append(cell)
-        columns.append(_label("Mirror", "column", Qt.AlignRight))
+        columns.append(_label(tr("Mirror"), "column", Qt.AlignRight))
         table.addWidget(_table_row(columns, (22, 0, 22, 8)))
         self._rows = QVBoxLayout()
         self._rows.setSpacing(0)
@@ -374,10 +371,10 @@ class HistoryPage(QWidget):
             return
 
         if view.average is None:
-            texts = ("No Watched Time in these days", "", "")
+            texts = (tr("No Watched Time in these days"), "", "")
         else:
-            days = "day" if view.active_days == 1 else "days"
-            texts = ("Average", f"{view.average}%", f"across {view.active_days} {days} with Watched Time")
+            across = "across {} day with Watched Time" if view.active_days == 1 else "across {} days with Watched Time"
+            texts = (tr("Average"), f"{view.average}%", tr(across).format(view.active_days))
         for label, text in zip(self._average, texts):
             label.setText(text)
             label.setVisible(bool(text))
@@ -394,6 +391,6 @@ class HistoryPage(QWidget):
                 cells += [_label(text, "share-good" if i == 0 else "share", Qt.AlignRight) for i, text in enumerate(row.cells)]
                 self._rows.addWidget(_table_row(cells, (22, 11, 22, 11)))
             else:
-                cells.append(_label("No Watched Time", "small-muted"))
+                cells.append(_label(tr("No Watched Time"), "small-muted"))
                 # the 32 px right margin stands in for the 4 column gaps this row lacks, so the Day column lines up
                 self._rows.addWidget(_table_row(cells, (22, 11, 54, 11), (15, 48)))

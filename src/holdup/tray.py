@@ -17,6 +17,7 @@ from holdup.start_with_windows import RunKey, StartWithWindows
 from holdup.store import Store, default_path
 from holdup.ui.actions import Actions
 from holdup.ui.main_window import MainWindow
+from holdup.ui.strings import tr
 from holdup.ui.theme import load_fonts
 from holdup.windows import MirrorWindow
 
@@ -55,15 +56,15 @@ def main() -> int:
     icons = {glyph: tray_icon(glyph) for glyph in TRAY_COLORS}
     tray = QSystemTrayIcon()
     menu = QMenu()
-    menu.addAction("Open Holdup").triggered.connect(lambda: main_window.present())
-    recalibrate_action = QAction("Recalibrate", menu)
+    menu.addAction(tr("Open Holdup")).triggered.connect(lambda: main_window.present())
+    recalibrate_action = QAction(tr("Recalibrate"), menu)
     recalibrate_action.triggered.connect(recalibrate)
     menu.addAction(recalibrate_action)
-    sensitivity_menu = menu.addMenu("Sensitivity")
+    sensitivity_menu = menu.addMenu(tr("Sensitivity"))
     sensitivity_group = QActionGroup(sensitivity_menu)  # exclusive: one choice marked at a time
     sensitivity_actions = {}
     for level in Sensitivity:
-        action = sensitivity_group.addAction(level.value)
+        action = sensitivity_group.addAction(tr(level.value))
         action.setCheckable(True)
         action.setChecked(level is monitor.sensitivity)
         action.triggered.connect(lambda _=False, level=level: setattr(monitor, "sensitivity", level))
@@ -83,7 +84,7 @@ def main() -> int:
         monitor.resume()
         show_state()
 
-    camera_menu = menu.addMenu("Camera")
+    camera_menu = menu.addMenu(tr("Camera"))
 
     def choose_camera(name: str) -> None:
         if name == monitor.camera:
@@ -101,7 +102,7 @@ def main() -> int:
         names = _camera_names()
         current = monitor.camera if monitor.camera is not None else names[0] if names else None
         if not names:
-            camera_menu.addAction("No camera found").setEnabled(False)
+            camera_menu.addAction(tr("No camera found")).setEnabled(False)
         for name in names:
             action = group.addAction(name)
             action.setCheckable(True)
@@ -113,21 +114,21 @@ def main() -> int:
 
     pause_actions = []
     for label, duration in (("Pause for 30 minutes", timedelta(minutes=30)), ("Pause for 1 hour", timedelta(hours=1)), ("Pause until resumed", None)):
-        action = menu.addAction(label)
+        action = menu.addAction(tr(label))
         action.triggered.connect(lambda _=False, d=duration: pause(d))
         pause_actions.append(action)
-    resume_action = menu.addAction("Resume")
+    resume_action = menu.addAction(tr("Resume"))
     resume_action.triggered.connect(resume)
     menu.addSeparator()
     start_with_windows = None
     if getattr(sys, "frozen", False):  # from source there is no exe to register
         start_with_windows = StartWithWindows(store, RunKey(), sys.executable)
         start_with_windows.apply()
-        start_action = QAction("Start with Windows", menu, checkable=True, checked=start_with_windows.enabled)
+        start_action = QAction(tr("Start with Windows"), menu, checkable=True, checked=start_with_windows.enabled)
         start_action.toggled.connect(start_with_windows.set_enabled)
         menu.aboutToShow.connect(lambda: start_action.setChecked(start_with_windows.enabled))  # the Settings page may have changed it
         menu.addAction(start_action)
-    quit_action = QAction("Quit", menu)
+    quit_action = QAction(tr("Quit"), menu)
     quit_action.triggered.connect(app.quit)
     menu.addAction(quit_action)
     tray.setContextMenu(menu)
@@ -143,7 +144,7 @@ def main() -> int:
     def show_state() -> None:
         paused = monitor.paused
         tray.setIcon(icons[tray_glyph(monitor.state, paused)])
-        tray.setToolTip("Holdup: Paused" if paused else f"Holdup: {monitor.state.value}")
+        tray.setToolTip("Holdup: " + tr("Paused" if paused else monitor.state.value))
         for action in pause_actions:
             action.setVisible(not paused)
         resume_action.setVisible(paused)
@@ -151,8 +152,8 @@ def main() -> int:
             main_window.refresh()
 
     def prompt_recalibration() -> None:
-        tray.showMessage("Holdup: camera view changed",
-                         "Your Baseline no longer fits. Choose Recalibrate in the tray menu to resume watching.")
+        tray.showMessage(tr("Holdup: camera view changed"),
+                         tr("Your Baseline no longer fits. Choose Recalibrate in the tray menu to resume watching."))
 
     def tick() -> None:
         if calibration.isVisible():

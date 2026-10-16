@@ -8,6 +8,7 @@ from PySide6.QtWidgets import QFrame, QGridLayout, QHBoxLayout, QLabel, QPushBut
 
 from holdup.posture_monitor import MonitorState, PostureMonitor
 from holdup.ui.actions import Actions
+from holdup.ui.strings import long_date, tr
 from holdup.ui.theme import CARD_MARGINS, PAGE_MARGINS, THEMES, status
 
 _EXPLANATIONS = {
@@ -40,8 +41,8 @@ def format_duration(seconds: float) -> str:
 def headline(state: MonitorState, paused: bool, paused_until: datetime | None) -> tuple[str, str]:
     """The status card's title and one-line explanation."""
     label, _ = status(state, paused)
-    title = (f"Paused until {paused_until:%H:%M}" if paused_until else "Paused until resumed") if paused else label
-    return title, _EXPLANATIONS[label]
+    title = (tr("Paused until {}").format(f"{paused_until:%H:%M}") if paused_until else tr("Paused until resumed")) if paused else tr(label)
+    return title, tr(_EXPLANATIONS[label])
 
 
 def _pixmap(body: str, view: int, size: int, ink: str) -> QPixmap:
@@ -134,7 +135,7 @@ class TodayPage(QWidget):
         page.setSpacing(16)
 
         header = QHBoxLayout()
-        title = _label("Today", "title")
+        title = _label(tr("Today"), "title")
         title.setWordWrap(False)
         self._date = _label(role="muted")
         self._date.setWordWrap(False)
@@ -143,15 +144,16 @@ class TodayPage(QWidget):
         page.addLayout(header)
 
         self._camera_banner, self._camera_icon = self._banner(
-            "Holdup can't read your camera",
-            "It may be unplugged, covered, or in use by another app such as a video call. Holdup keeps trying on its "
-            "own and starts watching again when the camera is free.",
-            [("Try again", actions.retry_camera), ("Choose another camera", lambda: self.window().show_page("Settings"))])
+            tr("Holdup can't read your camera"),
+            tr("It may be unplugged, covered, or in use by another app such as a video call. Holdup keeps trying on its "
+               "own and starts watching again when the camera is free."),
+            [(tr("Try again"), actions.retry_camera),
+             (tr("Choose another camera"), lambda: self.window().show_page("Settings"))])
         self._stale_banner, self._stale_icon = self._banner(
-            "Your camera view has changed",
-            "Your Baseline no longer matches what the camera sees, so Holdup has stopped watching for now. "
-            "Recalibrate and it picks up right away.",
-            [("Recalibrate", actions.recalibrate)])
+            tr("Your camera view has changed"),
+            tr("Your Baseline no longer matches what the camera sees, so Holdup has stopped watching for now. "
+               "Recalibrate and it picks up right away."),
+            [(tr("Recalibrate"), actions.recalibrate)])
         page.addWidget(self._camera_banner)
         page.addWidget(self._stale_banner)
 
@@ -183,18 +185,18 @@ class TodayPage(QWidget):
         layout.addWidget(rule)
         buttons = QHBoxLayout()
         buttons.setSpacing(8)
-        self._resume = QPushButton("Resume")
+        self._resume = QPushButton(tr("Resume"))
         self._resume.setProperty("role", "primary")
         self._resume.clicked.connect(actions.resume)
         buttons.addWidget(self._resume)
         self._pause_buttons = []
         for index, (text_, duration) in enumerate(_PAUSES):
-            button = QPushButton(text_)
+            button = QPushButton(tr(text_))
             button.clicked.connect(lambda _=False, i=index, d=duration: self._pause(i, d))
             buttons.addWidget(button)
             self._pause_buttons.append(button)
         buttons.addStretch()
-        self._recalibrate = QPushButton("Recalibrate")
+        self._recalibrate = QPushButton(tr("Recalibrate"))
         self._recalibrate.setProperty("role", "ghost")
         self._recalibrate.clicked.connect(actions.recalibrate)
         buttons.addWidget(self._recalibrate)
@@ -213,7 +215,7 @@ class TodayPage(QWidget):
         watched, layout = _card()
         layout.setSpacing(16)
         head = QHBoxLayout()
-        head.addWidget(_label("Watched Time", "heading"), 1, Qt.AlignBaseline)
+        head.addWidget(_label(tr("Watched Time"), "heading"), 1, Qt.AlignBaseline)
         self._total = _label(role="total")
         self._total.setWordWrap(False)
         head.addWidget(self._total, 0, Qt.AlignBaseline)
@@ -234,7 +236,7 @@ class TodayPage(QWidget):
             share.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
             time.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
             grid.addWidget(swatch, r, 0)
-            grid.addWidget(_label(kind, "kind"), r, 1)
+            grid.addWidget(_label(tr(kind), "kind"), r, 1)
             grid.addWidget(share, r, 2)
             grid.addWidget(time, r, 3)
             self._rows.append((swatch, share, time))
@@ -243,17 +245,17 @@ class TodayPage(QWidget):
 
         mirror, layout = _card()
         layout.setSpacing(8)
-        layout.addWidget(_label("Mirror", "heading"))
+        layout.addWidget(_label(tr("Mirror"), "heading"))
         count = QHBoxLayout()
         count.setSpacing(8)
         self._mirror_count = _label(role="count")
         self._mirror_count.setWordWrap(False)
         count.addWidget(self._mirror_count, 0, Qt.AlignBaseline)
-        count.addWidget(_label("times today", "muted"), 1, Qt.AlignBaseline)
+        count.addWidget(_label(tr("times today"), "muted"), 1, Qt.AlignBaseline)
         layout.addSpacing(6)
         layout.addLayout(count)
         layout.addStretch()
-        layout.addWidget(_label("The Mirror shows you your camera picture when Bad Posture lasts too long.", "small"))
+        layout.addWidget(_label(tr("The Mirror shows you your camera picture when Bad Posture lasts too long."), "small"))
         row.addWidget(mirror, 1)
         page.addLayout(row)
         page.addStretch()
@@ -328,9 +330,9 @@ class TodayPage(QWidget):
         if self._since is None or self._since[0] != label:
             self._since = label, now
         title, explanation = headline(monitor.state, paused, until)
-        self._date.setText(f"{now:%A}, {now.day} {now:%B}")
+        self._date.setText(long_date(now))
         self._title.setText(title)
-        self._since_label.setText(f"since {self._since[1]:%H:%M}" if label in _SHOWS_SINCE else "")
+        self._since_label.setText(tr("since {}").format(f"{self._since[1]:%H:%M}") if label in _SHOWS_SINCE else "")
         self._explanation.setText(explanation)
         soft = QColor(colour)  # the design's colour + "2E" alpha; Qt reads 8-digit hex as #AARRGGBB, so use rgba
         self._halo.setStyleSheet(f"background: rgba({soft.red()},{soft.green()},{soft.blue()},46); border-radius: 26px;")

@@ -5,6 +5,7 @@ from PySide6.QtGui import QColor, QGuiApplication, QImage, QPainter, QPen, QPixm
 from PySide6.QtWidgets import QLabel
 
 from holdup.posture_monitor import MonitorState
+from holdup.ui.strings import tr
 
 MIRROR_SIZE = QSize(320, 240)
 
@@ -23,7 +24,7 @@ MIRROR_EDGE = 3
 
 def mirror_lean(state: MonitorState) -> tuple[str, str] | None:
     """The Mirror's edge colour and label for a lean; None for any state that is not a lean."""
-    return (_LEAN_EDGE[state], state.value) if state in _LEAN_EDGE else None
+    return (_LEAN_EDGE[state], tr(state.value)) if state in _LEAN_EDGE else None
 
 
 class MirrorWindow(QLabel):

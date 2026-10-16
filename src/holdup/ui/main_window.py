@@ -12,11 +12,12 @@ from holdup.ui.actions import Actions
 from holdup.ui.calibration import CalibrationView
 from holdup.ui.history import HistoryPage
 from holdup.ui.settings import SettingsPage
+from holdup.ui.strings import LANG, tr
 from holdup.ui.theme import THEMES, status, stylesheet
 from holdup.ui.today import TodayPage
 
 COMPACT_BELOW = 900  # window width under which the sidebar shows icons only
-SIDEBAR_WIDTH = {False: 196, True: 60}  # by compact
+SIDEBAR_WIDTH = {False: 212 if LANG == "pt" else 196, True: 60}  # by compact; Portuguese labels are longer
 
 _NAV_ICONS = {  # the design's 18x18 strokes; INK becomes the theme's text colour
     "Today": '<circle cx="9" cy="9" r="7" fill="none" stroke="INK" stroke-width="1.6"/>'
@@ -129,8 +130,8 @@ class MainWindow(QMainWindow):
     def refresh(self) -> None:
         """Re-read the Posture Monitor into the status pill and the showing page. Called on the tray tick while visible."""
         label, color = status(self._monitor.state, self._monitor.paused)
-        self._status.setText(label)
-        self._pill.setToolTip(label)
+        self._status.setText(tr(label))
+        self._pill.setToolTip(tr(label))
         self._dot.setStyleSheet(f"background: {color}; border-radius: 5px;")
         self._stack.currentWidget().widget().refresh()
 
@@ -154,7 +155,7 @@ class MainWindow(QMainWindow):
         self._sidebar.setFixedWidth(SIDEBAR_WIDTH[compact])
         self.calibration.set_compact(compact)
         for name, button in zip(self._pages, self._nav.buttons()):
-            button.setText("" if compact else f"  {name}")  # the spaces stand in for the design's 12 px icon gap
+            button.setText("" if compact else f"  {tr(name)}")  # the spaces stand in for the design's 12 px icon gap
         self._status.setVisible(not compact)
 
     def _apply_theme(self) -> None:

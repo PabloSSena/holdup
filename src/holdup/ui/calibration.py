@@ -8,6 +8,7 @@ from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
 from holdup.posture_monitor import MonitorState, PostureMonitor
+from holdup.ui.strings import tr
 from holdup.ui.theme import THEMES
 from holdup.windows import _pixmap
 
@@ -58,7 +59,7 @@ class _Preview(QWidget):
             _svg(p, _NO_CAMERA, QRectF(w / 2 - 20, h / 2 - 31, 40, 40))
             p.setPen(QColor("#9BA6A1"))
             p.setFont(_font(13))
-            p.drawText(QRectF(0, h / 2 + 19, w, 20), Qt.AlignHCenter | Qt.AlignTop, "No picture")
+            p.drawText(QRectF(0, h / 2 + 19, w, 20), Qt.AlignHCenter | Qt.AlignTop, tr("No picture"))
             return
         gradient = QRadialGradient(w / 2, h * 0.4, math.hypot(w / 2, h * 0.6))
         gradient.setColorAt(0, QColor("#46504B"))
@@ -77,13 +78,13 @@ class _Preview(QWidget):
 
         p.setPen(Qt.NoPen)  # the "Live preview" tag
         p.setFont(_font(12, QFont.DemiBold))
-        tag = QRectF(12, 12, 9 + 7 + 6 + p.fontMetrics().horizontalAdvance("Live preview") + 9, 26)
+        tag = QRectF(12, 12, 9 + 7 + 6 + p.fontMetrics().horizontalAdvance(tr("Live preview")) + 9, 26)
         p.setBrush(QColor(0, 0, 0, 115))
         p.drawRoundedRect(tag, 7, 7)
         p.setBrush(QColor("#3FA36B"))
         p.drawEllipse(QRectF(21, 21.5, 7, 7))
         p.setPen(QColor("#FFFFFF"))
-        p.drawText(tag.adjusted(22, 0, 0, 0), Qt.AlignVCenter, "Live preview")
+        p.drawText(tag.adjusted(22, 0, 0, 0), Qt.AlignVCenter, tr("Live preview"))
 
         if self.state == "countdown":
             p.setFont(_font(120, QFont.Bold))
@@ -127,8 +128,8 @@ class CalibrationView(QWidget):
             QPushButton { min-height: 40px; max-height: 40px; padding: 0 20px; font-size: 14px; }
             QPushButton#cancel { min-height: 34px; max-height: 34px; padding: 0 14px; font-size: 13px; background: transparent; }
         """)
-        heading = QLabel("Calibration", objectName="heading")
-        self._cancel = QPushButton("Cancel", objectName="cancel", cursor=Qt.PointingHandCursor)
+        heading = QLabel(tr("Calibration"), objectName="heading")
+        self._cancel = QPushButton(tr("Cancel"), objectName="cancel", cursor=Qt.PointingHandCursor)
         self._cancel.clicked.connect(self._cancel_clicked)
         keep_space = self._cancel.sizePolicy()
         keep_space.setRetainSizeWhenHidden(True)  # so the content does not jump when it hides on success
@@ -150,15 +151,17 @@ class CalibrationView(QWidget):
         self._button.clicked.connect(self._button_clicked)
         text = QVBoxLayout()
         text.setSpacing(10)
+        text.addStretch()
         for widget in (self._kicker, self._title, self._body):
             text.addWidget(widget)
         text.addSpacing(12)
         text.addWidget(self._button, 0, Qt.AlignLeft)
+        text.addStretch()
         row = QHBoxLayout()
         row.setSpacing(28)
         row.addWidget(self.preview, 0, Qt.AlignVCenter)
         row.addLayout(text, 1)
-        row.setAlignment(text, Qt.AlignVCenter)
+        # centred by stretches, not an alignment flag: that breaks the wrapped labels' height (three-line titles in Portuguese)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(30, 22, 30, 26)
@@ -200,12 +203,12 @@ class CalibrationView(QWidget):
         kicker, title, body = _COPY[state]
         dark = QGuiApplication.styleHints().colorScheme() == Qt.ColorScheme.Dark
         tokens = THEMES["dark" if dark else "light"]
-        self._kicker.setText(kicker.upper())
+        self._kicker.setText(tr(kicker).upper())
         self._kicker.setStyleSheet(f"color: {tokens['wni' if state.startswith('fail') else 'ac']}")
-        self._title.setText(title.format(count))
-        self._body.setText(body)
+        self._title.setText(tr(title).format(count))
+        self._body.setText(tr(body))
         self._button.setVisible(state in _BUTTON)
-        self._button.setText(_BUTTON.get(state, ""))
+        self._button.setText(tr(_BUTTON.get(state, "")))
         self._cancel.setVisible(state != "success")
         preview = self.preview
         preview.state, preview.count, preview.progress = state, count, self._monitor.calibration_progress()

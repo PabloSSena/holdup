@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
 from holdup.posture_classifier import Sensitivity
 from holdup.posture_monitor import MonitorState, PostureMonitor
 from holdup.ui.actions import Actions
+from holdup.ui.strings import short_date, tr
 from holdup.ui.theme import CARD_MARGINS, PAGE_MARGINS, THEMES
 
 STALE_TEXT = "Stale — the camera view changed. Recalibrate to resume watching."
@@ -32,15 +33,16 @@ _CHEVRON_SVG = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12"><pa
 def baseline_text(captured_at: datetime | None, now: datetime, stale: bool, has_camera: bool, calibrated: bool = True) -> str:
     """The Baseline row's text, e.g. "Captured today at 09:10" or "Captured Wed 14 Oct at 09:10"."""
     if not has_camera:
-        return "Needs a camera"
+        return tr("Needs a camera")
     if stale:
-        return STALE_TEXT
+        return tr(STALE_TEXT)
     if not calibrated:
-        return "Not captured yet"
+        return tr("Not captured yet")
     if captured_at is None:  # a Baseline saved before capture times were recorded
-        return "Captured"
-    day = "today" if captured_at.date() == now.date() else f"{captured_at:%a} {captured_at.day} {captured_at:%b}"
-    return f"Captured {day} at {captured_at:%H:%M}"
+        return tr("Captured")
+    if captured_at.date() == now.date():
+        return tr("Captured today at {}").format(f"{captured_at:%H:%M}")
+    return tr("Captured {} at {}").format(short_date(captured_at), f"{captured_at:%H:%M}")
 
 
 def _label(text: str, role: str | None = None) -> QLabel:
@@ -99,14 +101,14 @@ class SettingsPage(QWidget):
         layout = QVBoxLayout(column)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(16)
-        layout.addWidget(_label("Settings", "title"))
+        layout.addWidget(_label(tr("Settings"), "title"))
 
         card, box = _card()
         box.setSpacing(14)
         heading = QVBoxLayout()
         heading.setSpacing(4)
-        heading.addWidget(_label("Sensitivity", "heading"))
-        heading.addWidget(_label("How far from your Baseline you may sit before it counts as Bad Posture.", "muted"))
+        heading.addWidget(_label(tr("Sensitivity"), "heading"))
+        heading.addWidget(_label(tr("How far from your Baseline you may sit before it counts as Bad Posture."), "muted"))
         box.addLayout(heading)
         segments = QFrame(objectName="segments")
         row = QHBoxLayout(segments)
@@ -114,7 +116,7 @@ class SettingsPage(QWidget):
         row.setSpacing(2)
         self._levels = QButtonGroup(self)
         for level in Sensitivity:
-            button = QPushButton(level.value, checkable=True, cursor=Qt.PointingHandCursor)
+            button = QPushButton(tr(level.value), checkable=True, cursor=Qt.PointingHandCursor)
             button.clicked.connect(lambda _=False, level=level: self._set_sensitivity(level))
             self._levels.addButton(button)
             row.addWidget(button)
@@ -137,11 +139,11 @@ class SettingsPage(QWidget):
         bar.addWidget(zone)
         bar.addStretch()
         scale = QHBoxLayout()
-        scale.addWidget(_label("Bad Posture", "caption"))
+        scale.addWidget(_label(tr("Bad Posture"), "caption"))
         scale.addStretch()
-        scale.addWidget(_label("Baseline", "caption-strong"))
+        scale.addWidget(_label(tr("Baseline"), "caption-strong"))
         scale.addStretch()
-        scale.addWidget(_label("Bad Posture", "caption"))
+        scale.addWidget(_label(tr("Bad Posture"), "caption"))
         zone_box = QVBoxLayout()
         zone_box.setSpacing(8)
         zone_box.addWidget(self._track)
@@ -153,21 +155,21 @@ class SettingsPage(QWidget):
 
         card, box = _card()
         box.setSpacing(12)
-        box.addWidget(_label("Camera", "heading"))
+        box.addWidget(_label(tr("Camera"), "heading"))
         self._camera = _CameraBox(self._list_cameras)
         self._camera.setMaximumWidth(380)
         self._camera.setCursor(Qt.PointingHandCursor)
-        self._camera.setPlaceholderText("Choose a camera")
+        self._camera.setPlaceholderText(tr("Choose a camera"))
         self._camera.activated.connect(lambda index: self._choose_camera(self._camera.itemText(index)))
         box.addWidget(self._camera)
-        self._no_camera = _label("Plug in a camera and it shows up here.", "muted")
+        self._no_camera = _label(tr("Plug in a camera and it shows up here."), "muted")
         box.addWidget(self._no_camera)
         note = QHBoxLayout()
         note.setSpacing(8)
         self._info = QSvgWidget(fixedSize=QSize(16, 16))
         note.addWidget(self._info, 0, Qt.AlignTop)
-        note.addWidget(_label("Switching camera makes your Baseline Stale. You'll be asked to Recalibrate before "
-                              "watching resumes.", "note"), 1)
+        note.addWidget(_label(tr("Switching camera makes your Baseline Stale. You'll be asked to Recalibrate "
+                                 "before watching resumes."), "note"), 1)
         box.addLayout(note)
         rule = QFrame(fixedHeight=1)
         rule.setProperty("role", "rule")
@@ -176,11 +178,11 @@ class SettingsPage(QWidget):
         baseline.setSpacing(12)
         text = QVBoxLayout()
         text.setSpacing(2)
-        text.addWidget(_label("Baseline", "strong"))
+        text.addWidget(_label(tr("Baseline"), "strong"))
         self._baseline = _label("", "note")
         text.addWidget(self._baseline)
         baseline.addLayout(text, 1)
-        recalibrate = QPushButton("Recalibrate", cursor=Qt.PointingHandCursor)
+        recalibrate = QPushButton(tr("Recalibrate"), cursor=Qt.PointingHandCursor)
         recalibrate.setProperty("role", "small")
         recalibrate.clicked.connect(actions.recalibrate)
         baseline.addWidget(recalibrate)
@@ -195,8 +197,8 @@ class SettingsPage(QWidget):
             row.setSpacing(16)
             text = QVBoxLayout()
             text.setSpacing(2)
-            text.addWidget(_label("Start with Windows", "heading"))
-            text.addWidget(_label("Holdup starts in the tray when you sign in.", "note"))
+            text.addWidget(_label(tr("Start with Windows"), "heading"))
+            text.addWidget(_label(tr("Holdup starts in the tray when you sign in."), "note"))
             row.addLayout(text, 1)
             self._start = QPushButton(checkable=True, cursor=Qt.PointingHandCursor)
             self._start.setProperty("role", "switch")
@@ -218,9 +220,9 @@ class SettingsPage(QWidget):
         row.addWidget(self._lock, 0, Qt.AlignTop)
         text = QVBoxLayout()
         text.setSpacing(3)
-        text.addWidget(_label("Your camera picture stays with you", "heading"))
-        text.addWidget(_label("Frames never leave this computer and are never saved. Holdup keeps only numbers, like "
-                              "how many minutes you sat in Good Posture."))
+        text.addWidget(_label(tr("Your camera picture stays with you"), "heading"))
+        text.addWidget(_label(tr("Frames never leave this computer and are never saved. Holdup keeps only numbers, "
+                                 "like how many minutes you sat in Good Posture.")))
         row.addLayout(text, 1)
         box.addLayout(row)
         layout.addWidget(card)
@@ -235,7 +237,7 @@ class SettingsPage(QWidget):
         monitor = self._monitor
         self._levels.buttons()[list(Sensitivity).index(monitor.sensitivity)].setChecked(True)
         description, zone = _SENSITIVITY[monitor.sensitivity]
-        self._description.setText(description)
+        self._description.setText(tr(description))
         bar = self._track.layout()
         for index, stretch in enumerate((100 - zone, 2 * zone, 100 - zone)):
             bar.setStretch(index, stretch)
@@ -262,7 +264,7 @@ class SettingsPage(QWidget):
     def _list_cameras(self) -> None:
         self._cameras = self._actions.camera_names()
         self._camera.clear()
-        self._camera.addItems(self._cameras or ["No camera found"])
+        self._camera.addItems(self._cameras or [tr("No camera found")])
         self._camera.setEnabled(bool(self._cameras))
         self._no_camera.setVisible(not self._cameras)
         self._show_current_camera()
