@@ -48,12 +48,9 @@ def main() -> int:
     camera = CameraSource(locate_camera)
     mirror = MirrorWindow()
     first_launch = not monitor.calibrated
-    if first_launch:
-        monitor.begin_calibration()
 
     def recalibrate() -> None:
-        monitor.begin_calibration()
-        main_window.show_calibration()
+        main_window.show_calibration()  # Calibration begins on its Start button
 
     icons = {glyph: tray_icon(glyph) for glyph in TRAY_COLORS}
     tray = QSystemTrayIcon()

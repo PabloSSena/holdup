@@ -11,7 +11,7 @@ from holdup.start_with_windows import StartWithWindows
 class Actions:
     pause: Callable[[timedelta | None], None]  # None pauses until resumed
     resume: Callable[[], None]
-    recalibrate: Callable[[], None]  # begins Calibration and shows it
+    recalibrate: Callable[[], None]  # shows the window with Calibration at Ready
     set_sensitivity: Callable[[Sensitivity], None]  # also keeps the tray menu's mark in step
     camera_names: Callable[[], list[str]]  # cameras plugged in right now
     choose_camera: Callable[[str], None]  # may make the Baseline Stale

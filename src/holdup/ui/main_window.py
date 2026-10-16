@@ -9,11 +9,11 @@ from PySide6.QtWidgets import (
 
 from holdup.posture_monitor import PostureMonitor
 from holdup.ui.actions import Actions
+from holdup.ui.calibration import CalibrationView
 from holdup.ui.history import HistoryPage
 from holdup.ui.settings import SettingsPage
 from holdup.ui.theme import THEMES, status, stylesheet
 from holdup.ui.today import TodayPage
-from holdup.windows import CalibrationWindow
 
 COMPACT_BELOW = 900  # window width under which the sidebar shows icons only
 SIDEBAR_WIDTH = {False: 196, True: 60}  # by compact
@@ -48,8 +48,8 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Holdup")
         self.resize(960, 640)
         self.setMinimumSize(760, 520)
-        # shortcut: Calibration is still the separate window; issue 05 turns it into a view over this window's content.
-        self.calibration = CalibrationWindow(monitor)
+        self.calibration = CalibrationView(monitor)
+        self.calibration.finished.connect(self._close_calibration)
         self._pages = {
             "Today": TodayPage(monitor, actions),
             "History": HistoryPage(monitor, actions),
@@ -91,7 +91,10 @@ class MainWindow(QMainWindow):
         body.setSpacing(0)
         body.addWidget(self._sidebar)
         body.addWidget(self._stack, 1)
-        self.setCentralWidget(central)
+        self._central = QStackedWidget()  # the shell, or Calibration covering it
+        self._central.addWidget(central)
+        self._central.addWidget(self.calibration)
+        self.setCentralWidget(self._central)
 
         self._compact: bool | None = None
         self._set_compact(False)
@@ -112,10 +115,16 @@ class MainWindow(QMainWindow):
         self._pages[name].refresh()
 
     def show_calibration(self) -> None:
-        """Show Calibration; the caller has already begun it on the Posture Monitor."""
-        self.calibration.show()
-        self.calibration.raise_()
-        self.calibration.activateWindow()
+        """Show the window with Calibration at Ready (first launch and every Recalibrate)."""
+        self.calibration.open()
+        self._central.setCurrentWidget(self.calibration)
+        self.present()
+
+    def _close_calibration(self, done: bool) -> None:
+        self._central.setCurrentIndex(0)
+        if done:
+            self.show_page("Today")
+        self.refresh()
 
     def refresh(self) -> None:
         """Re-read the Posture Monitor into the status pill and the showing page. Called on the tray tick while visible."""
@@ -143,6 +152,7 @@ class MainWindow(QMainWindow):
             return
         self._compact = compact
         self._sidebar.setFixedWidth(SIDEBAR_WIDTH[compact])
+        self.calibration.set_compact(compact)
         for name, button in zip(self._pages, self._nav.buttons()):
             button.setText("" if compact else f"  {name}")  # the spaces stand in for the design's 12 px icon gap
         self._status.setVisible(not compact)
