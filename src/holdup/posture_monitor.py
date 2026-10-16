@@ -20,6 +20,7 @@ CALIBRATION_COUNTDOWN = timedelta(seconds=3)
 CALIBRATION_CAPTURE = timedelta(seconds=2)
 
 BASELINE = "baseline"  # Store name of the Baseline landmarks
+BASELINE_CAPTURED_AT = "baseline_captured_at"  # Store name of when the Baseline was captured (ISO local time)
 SENSITIVITY = "sensitivity"  # Store name of the User's Sensitivity ("Low", "Medium" or "High")
 CAMERA = "camera"  # Store name of the chosen camera's name; absent means the Windows default camera
 
@@ -144,6 +145,12 @@ class PostureMonitor:
         self._store.set(SENSITIVITY, sensitivity.value)
 
     @property
+    def baseline_captured_at(self) -> datetime | None:
+        """When the Baseline was captured; None without a Baseline or for one saved before this was recorded."""
+        saved = self._store.get(BASELINE_CAPTURED_AT)
+        return saved and datetime.fromisoformat(saved)
+
+    @property
     def calibrated(self) -> bool:
         """Whether a Baseline exists, from this run or remembered in the Store."""
         return self._baseline is not None
@@ -219,6 +226,7 @@ class PostureMonitor:
         if succeeded:
             self._baseline = _average(self._captured)
             self._store.set(BASELINE, self._baseline)
+            self._store.set(BASELINE_CAPTURED_AT, self._clock().isoformat())
             if self._stale:
                 self._stale = False
                 self._store.set(STALE, False)

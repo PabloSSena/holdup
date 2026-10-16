@@ -46,6 +46,35 @@ def stylesheet(t: dict[str, str]) -> str:
     QPushButton {{ min-height: 36px; max-height: 36px; padding: 0 16px; border-radius: 10px; border: 1px solid {t['ln']};
         background: {t['cd']}; font-weight: 600; }}
     QPushButton[role="primary"] {{ background: {t['ac']}; color: {t['aci']}; border: none; }}
+    *[role="heading"] {{ font-size: 15px; font-weight: 700; }}
+    *[role="strong"] {{ font-weight: 600; }}
+    *[role="note"] {{ font-size: 13px; color: {t['mu']}; }}
+    *[role="warning"] {{ font-size: 13px; color: {t['wni']}; }}
+    *[role="caption"] {{ font-size: 12px; color: {t['mu']}; }}
+    *[role="caption-strong"] {{ font-size: 12px; font-weight: 600; }}
+    *[role="rule"] {{ background: {t['ln']}; border: none; }}
+    *[role="privacy"] {{ background: {t['acs']}; border: none; border-radius: 16px; }}
+    *[role="privacy"] QLabel {{ background: transparent; }}
+    #segments {{ background: {t['sb']}; border: none; border-radius: 10px; }}
+    #segments QPushButton {{ min-height: 32px; max-height: 32px; min-width: 60px; padding: 0 14px; border: none;
+        border-radius: 8px; background: transparent; font-size: 13px; }}
+    #segments QPushButton:checked {{ background: {t['cd']}; }}
+    *[role="track"] {{ background: {t['sf']}; border: 1px solid {t['ln']}; border-radius: 8px; }}
+    *[role="zone"] {{ background: {t['acs']}; border: none; border-left: 2px solid {t['ac']};
+        border-right: 2px solid {t['ac']}; }}
+    *[role="marker"] {{ background: {t['ink']}; border: none; border-radius: 1px; }}
+    QComboBox {{ min-height: 38px; max-height: 38px; padding: 0 12px 0 14px; border: 1px solid {t['ln']};
+        border-radius: 10px; background: {t['sf']}; }}
+    QComboBox:disabled {{ color: {t['mu']}; }}
+    QComboBox::drop-down {{ border: none; width: 0; }}
+    QComboBox QAbstractItemView {{ background: {t['cd']}; border: 1px solid {t['ln']}; padding: 4px; outline: none;
+        selection-background-color: {t['sf']}; selection-color: {t['ink']}; }}
+    QPushButton[role="small"] {{ min-height: 34px; max-height: 34px; padding: 0 14px; background: transparent;
+        font-size: 13px; }}
+    QPushButton[role="switch"] {{ min-width: 44px; max-width: 44px; min-height: 24px; max-height: 24px; padding: 0;
+        border: none; border-radius: 12px; background: {t['ln']}; }}
+    QPushButton[role="switch"]:checked {{ background: {t['ac']}; }}
+    *[role="knob"] {{ background: #FFFFFF; border: none; border-radius: 9px; }}
     """
 
 
