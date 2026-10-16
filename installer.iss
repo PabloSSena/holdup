@@ -20,6 +20,7 @@ Compression=lzma2
 SolidCompression=yes
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
+SetupIconFile=assets\holdup.ico
 UninstallDisplayIcon={app}\Holdup.exe
 
 [Files]
