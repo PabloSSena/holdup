@@ -101,6 +101,11 @@ class PostureMonitor:
     def paused(self) -> bool:
         return self._paused_until is not None and self._clock() < self._paused_until
 
+    @property
+    def paused_until(self) -> datetime | None:
+        """When the current Pause ends; None for a Pause until resumed (and when not paused)."""
+        return self._paused_until if self.paused and self._paused_until != datetime.max else None
+
     def begin_calibration(self) -> None:
         self._calibration_started = self._clock()
         self._captured = []
