@@ -3,7 +3,7 @@
 $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
 
-& .venv\Scripts\pyinstaller --noconfirm --clean --windowed --name Holdup `
+& .venv\Scripts\pyinstaller --noconfirm --clean --windowed --name Holdup --icon assets\holdup.ico `
     --paths src `
     --add-data "src\holdup\models;holdup\models" `
     --collect-binaries mediapipe `

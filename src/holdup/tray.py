@@ -2,33 +2,22 @@
 import sys
 from datetime import datetime, timedelta
 
-from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QAction, QActionGroup, QColor, QIcon, QPainter, QPixmap
+from PySide6.QtCore import QTimer
+from PySide6.QtGui import QAction, QActionGroup
 from PySide6.QtMultimedia import QMediaDevices
 from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 
 from holdup.camera_source import CameraSource
+from holdup.icons import TRAY_COLORS, app_icon, tray_glyph, tray_icon
 from holdup.observation import CameraUnavailable
 from holdup.pose_detector import PoseDetector
 from holdup.posture_classifier import Sensitivity
-from holdup.posture_monitor import MonitorState, PostureMonitor
+from holdup.posture_monitor import PostureMonitor
 from holdup.start_with_windows import RunKey, StartWithWindows
 from holdup.store import Store, default_path
 from holdup.windows import CalibrationWindow, MirrorWindow, StatsWindow
 
 TICK_MS = 33  # smooth feed while a window shows it; analysis still only runs when the Posture Monitor says it is due
-
-
-def _dot_icon(color: str) -> QIcon:
-    pixmap = QPixmap(64, 64)
-    pixmap.fill(Qt.transparent)
-    painter = QPainter(pixmap)
-    painter.setRenderHint(QPainter.Antialiasing)
-    painter.setBrush(QColor(color))
-    painter.setPen(Qt.NoPen)
-    painter.drawEllipse(6, 6, 52, 52)
-    painter.end()
-    return QIcon(pixmap)
 
 
 def _camera_names() -> list[str]:
@@ -39,6 +28,7 @@ def _camera_names() -> list[str]:
 def main() -> int:
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
+    app.setWindowIcon(app_icon())
 
     detector = PoseDetector()
     store = Store(default_path())
@@ -70,13 +60,7 @@ def main() -> int:
         calibration.raise_()
         calibration.activateWindow()
 
-    icons = {
-        "watching": _dot_icon("#2e9d4f"),
-        "absent": _dot_icon("#8a8a8a"),
-        "unavailable": _dot_icon("#d9822b"),
-        "stale": _dot_icon("#c62828"),
-        "paused": _dot_icon("#e0a020"),
-    }
+    icons = {glyph: tray_icon(glyph) for glyph in TRAY_COLORS}
     tray = QSystemTrayIcon()
     menu = QMenu()
     menu.addAction("Stats").triggered.connect(show_stats)
@@ -150,9 +134,7 @@ def main() -> int:
 
     def show_state() -> None:
         paused = monitor.paused
-        icon = {MonitorState.ABSENT: "absent", MonitorState.CAMERA_UNAVAILABLE: "unavailable",
-                MonitorState.STALE_BASELINE: "stale"}.get(monitor.state, "watching")
-        tray.setIcon(icons["paused" if paused else icon])
+        tray.setIcon(icons[tray_glyph(monitor.state, paused)])
         tray.setToolTip("Holdup: Paused" if paused else f"Holdup: {monitor.state.value}")
         for action in pause_actions:
             action.setVisible(not paused)
