@@ -33,6 +33,10 @@ def stylesheet(t: dict[str, str]) -> str:
     QWidget {{ color: {t['ink']}; font-family: "{FONT_FAMILY}", "Segoe UI"; font-size: 14px; }}
     QMainWindow {{ background: {t['bg']}; }}
     QScrollArea, QScrollArea > QWidget, QScrollArea > QWidget > QWidget {{ background: transparent; border: none; }}
+    QScrollBar:vertical {{ background: transparent; width: 10px; margin: 2px; }}
+    QScrollBar::handle:vertical {{ background: {t['ln']}; border-radius: 3px; min-height: 32px; }}
+    QScrollBar::handle:vertical:hover {{ background: {t['mu']}; }}
+    QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical, QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {{ height: 0; background: none; }}
     #sidebar {{ background: {t['sb']}; border: none; border-right: 1px solid {t['ln']}; }}
     #sidebar QPushButton {{ min-height: 40px; max-height: 40px; padding: 0 12px; border: none; border-radius: 10px;
         background: transparent; text-align: left; }}
