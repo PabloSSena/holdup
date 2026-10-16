@@ -4,7 +4,7 @@ from PySide6.QtCore import QRectF, QSize, Qt
 from PySide6.QtGui import QColor, QGuiApplication, QImage, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import QLabel
 
-from holdup.posture_monitor import DailyStats, MonitorState
+from holdup.posture_monitor import MonitorState
 
 MIRROR_SIZE = QSize(320, 240)
 
@@ -78,15 +78,3 @@ class MirrorWindow(QLabel):
 
     def show_frame(self, rgb_frame: np.ndarray) -> None:
         self.setPixmap(_pixmap(rgb_frame, MIRROR_SIZE))
-
-
-STATS_COLUMNS = ("Good Posture", "Forward Lean", "Side Lean", "Mirror")
-
-
-def stats_cells(stats: DailyStats | None) -> list[str]:
-    """One day's row: shares of Watched Time and the Mirror count; a day without Watched Time is empty, not 0%."""
-    if not stats or not stats.watched_time:
-        return [""] * len(STATS_COLUMNS)
-    shares = (stats.good_posture, stats.forward_lean, stats.side_lean)
-    return [f"{round(100 * seconds / stats.watched_time)}%" for seconds in shares] + [str(stats.mirror_count)]
-
