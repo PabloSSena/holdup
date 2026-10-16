@@ -1,10 +1,22 @@
 """English and Brazilian Portuguese copy, from the design. The English text is the key; tr() gives it in the User's
-language, which follows the Windows display language (Portuguese, else English)."""
+language: the one chosen in Settings, else the Windows display language (Portuguese, else English)."""
+import ctypes
 from datetime import date
 
-from PySide6.QtCore import QLocale
+LANGUAGE = "language"  # Store name of the language chosen in Settings ("en" or "pt"); absent follows Windows
+LANGUAGES = {"en": "English (US)", "pt": "Português (BR)"}  # each in its own language, as in the design
 
-LANG = "pt" if QLocale.system().uiLanguages()[0].lower().startswith("pt") else "en"
+
+def windows_language() -> str:
+    """Portuguese when the Windows display language is (any region), else English. Not QLocale: it read English in
+    the packaged app on a pt-BR Windows."""
+    try:
+        return "pt" if ctypes.windll.kernel32.GetUserDefaultUILanguage() & 0x3FF == 0x16 else "en"  # LANG_PORTUGUESE
+    except AttributeError:  # not Windows
+        return "en"
+
+
+LANG = windows_language()  # tray.py replaces it with the Settings choice before building any window
 
 _PT = {
     # shell and status
@@ -101,6 +113,8 @@ _PT = {
     "The camera can't be read": "Não é possível ler a câmera",
     "Check that it is plugged in, not covered, and not being used by another app.":
         "Verifique se ela está conectada, descoberta e sem uso por outro app.",
+    "Language": "Idioma",
+    "Holdup restarts to switch language.": "O Holdup reinicia para trocar o idioma.",
     # tray (not in the design; same words)
     "Open Holdup": "Abrir o Holdup", "Quit": "Sair",
     "Holdup: camera view changed": "Holdup: a imagem da câmera mudou",

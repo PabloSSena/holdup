@@ -11,7 +11,8 @@ from PySide6.QtWidgets import (
 from holdup.posture_classifier import Sensitivity
 from holdup.posture_monitor import MonitorState, PostureMonitor
 from holdup.ui.actions import Actions
-from holdup.ui.strings import short_date, tr
+from holdup.ui import strings
+from holdup.ui.strings import LANGUAGES, short_date, tr
 from holdup.ui.theme import CARD_MARGINS, PAGE_MARGINS, THEMES
 
 STALE_TEXT = "Stale — the camera view changed. Recalibrate to resume watching."
@@ -211,6 +212,23 @@ class SettingsPage(QWidget):
             row.addWidget(self._start)
             box.addLayout(row)
             layout.addWidget(card)
+
+        card, box = _card()
+        box.setSpacing(12)
+        box.addWidget(_label(tr("Language"), "heading"))
+        segments = QFrame(objectName="segments")
+        row = QHBoxLayout(segments)
+        row.setContentsMargins(3, 3, 3, 3)
+        row.setSpacing(2)
+        languages = QButtonGroup(self)
+        for code, name in LANGUAGES.items():
+            button = QPushButton(name, checkable=True, checked=code == strings.LANG, cursor=Qt.PointingHandCursor)
+            button.clicked.connect(lambda _=False, code=code: code != strings.LANG and actions.set_language(code))
+            languages.addButton(button)
+            row.addWidget(button)
+        box.addWidget(segments, 0, Qt.AlignLeft)
+        box.addWidget(_label(tr("Holdup restarts to switch language."), "note"))
+        layout.addWidget(card)
 
         card, box = _card("privacy")
         box.setContentsMargins(22, 18, 22, 18)

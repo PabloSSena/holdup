@@ -2,7 +2,7 @@
 import sys
 from datetime import datetime, timedelta
 
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QProcess, QTimer
 from PySide6.QtGui import QAction, QActionGroup
 from PySide6.QtMultimedia import QMediaDevices
 from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
@@ -17,7 +17,8 @@ from holdup.start_with_windows import RunKey, StartWithWindows
 from holdup.store import Store, default_path
 from holdup.ui.actions import Actions
 from holdup.ui.main_window import MainWindow
-from holdup.ui.strings import tr
+from holdup.ui import strings
+from holdup.ui.strings import LANGUAGE, tr
 from holdup.ui.theme import load_fonts
 from holdup.windows import MirrorWindow
 
@@ -37,6 +38,7 @@ def main() -> int:
 
     detector = PoseDetector()
     store = Store(default_path())
+    strings.LANG = store.get(LANGUAGE, strings.LANG)  # before any window or menu is built, as they read it once
     monitor = PostureMonitor(clock=datetime.now, store=store)
 
     def locate_camera() -> int | None:
@@ -133,10 +135,17 @@ def main() -> int:
     menu.addAction(quit_action)
     tray.setContextMenu(menu)
 
+    def set_language(language: str) -> None:
+        """Every window and menu reads the language once when built, so restart rather than rebuild them all."""
+        store.set(LANGUAGE, language)
+        command = [sys.executable] if getattr(sys, "frozen", False) else [sys.executable, "-m", "holdup"]
+        QProcess.startDetached(command[0], command[1:])
+        app.quit()
+
     main_window = MainWindow(monitor, Actions(
         pause=pause, resume=resume, recalibrate=recalibrate, set_sensitivity=set_sensitivity,
         camera_names=_camera_names, choose_camera=choose_camera, start_with_windows=start_with_windows,
-        retry_camera=camera.close,
+        retry_camera=camera.close, set_language=set_language,
     ))
     calibration = main_window.calibration
     tray.activated.connect(lambda reason: reason == QSystemTrayIcon.Trigger and main_window.present())
