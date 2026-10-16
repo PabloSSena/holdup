@@ -20,7 +20,7 @@ build = ["pyinstaller>=6.10"]
 holdup = "holdup.tray:main"
 
 [tool.setuptools.package-data]
-holdup = ["models/*.task"]
+holdup = ["models/*.task", "fonts/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
