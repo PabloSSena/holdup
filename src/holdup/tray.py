@@ -128,6 +128,7 @@ def main() -> int:
         start_with_windows.apply()
         start_action = QAction("Start with Windows", menu, checkable=True, checked=start_with_windows.enabled)
         start_action.toggled.connect(start_with_windows.set_enabled)
+        menu.aboutToShow.connect(lambda: start_action.setChecked(start_with_windows.enabled))  # the Settings page may have changed it
         menu.addAction(start_action)
     quit_action = QAction("Quit", menu)
     quit_action.triggered.connect(app.quit)
