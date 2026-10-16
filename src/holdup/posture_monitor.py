@@ -21,6 +21,7 @@ CALIBRATION_CAPTURE = timedelta(seconds=2)
 
 BASELINE = "baseline"  # Store name of the Baseline landmarks
 SENSITIVITY = "sensitivity"  # Store name of the User's Sensitivity ("Low", "Medium" or "High")
+CAMERA = "camera"  # Store name of the chosen camera's name; absent means the Windows default camera
 
 # Watched Time between two frames goes to the earlier frame's posture; a longer gap (sleep, hibernate) adds nothing.
 STATS_MAX_GAP = timedelta(seconds=5)
@@ -119,6 +120,19 @@ class PostureMonitor:
         self._prompt = True
         self.mirror_visible = False
         self._bad_since = None
+
+    @property
+    def camera(self) -> str | None:
+        """The name of the camera the User chose, or None for the Windows default camera."""
+        return self._store.get(CAMERA)
+
+    def camera_changed(self, name: str) -> None:
+        """The User chose another camera: remember it, and the Baseline (if any) no longer fits the new viewpoint."""
+        if name == self.camera:
+            return
+        self._store.set(CAMERA, name)
+        if self._baseline is not None and not self._stale:
+            self._make_stale()
 
     @property
     def sensitivity(self) -> Sensitivity:

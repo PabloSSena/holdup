@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QAction, QActionGroup, QColor, QIcon, QPainter, QPixmap
+from PySide6.QtMultimedia import QMediaDevices
 from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 
 from holdup.camera_source import CameraSource
@@ -30,14 +31,27 @@ def _dot_icon(color: str) -> QIcon:
     return QIcon(pixmap)
 
 
+def _camera_names() -> list[str]:
+    # shortcut: assumes Qt lists cameras in DirectShow's order (true on typical setups); enumerate DirectShow itself if a wrong camera opens.
+    return [device.description() for device in QMediaDevices.videoInputs()]
+
+
 def main() -> int:
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
 
-    camera = CameraSource()
     detector = PoseDetector()
     store = Store(default_path())
     monitor = PostureMonitor(clock=datetime.now, store=store)
+
+    def locate_camera() -> int | None:
+        """The chosen camera's index; a saved camera that is missing gives None, so Camera Unavailable is retried."""
+        names = _camera_names()
+        if monitor.camera is None:
+            return 0
+        return names.index(monitor.camera) if monitor.camera in names else None
+
+    camera = CameraSource(locate_camera)
     mirror = MirrorWindow()
     first_launch = not monitor.calibrated
     if first_launch:
@@ -87,6 +101,34 @@ def main() -> int:
         monitor.resume()
         show_state()
 
+    camera_menu = menu.addMenu("Camera")
+
+    def choose_camera(name: str) -> None:
+        if name == monitor.camera:
+            return
+        monitor.camera_changed(name)
+        camera.close()  # the next tick opens the new camera
+        if monitor.take_recalibration_prompt():
+            prompt_recalibration()
+        show_state()
+
+    def list_cameras() -> None:
+        """Rebuilt each time the menu opens, so plugged-in cameras show up."""
+        camera_menu.clear()
+        group = QActionGroup(camera_menu)
+        names = _camera_names()
+        current = monitor.camera if monitor.camera is not None else names[0] if names else None
+        if not names:
+            camera_menu.addAction("No camera found").setEnabled(False)
+        for name in names:
+            action = group.addAction(name)
+            action.setCheckable(True)
+            action.setChecked(name == current)
+            action.triggered.connect(lambda _=False, name=name: choose_camera(name))
+            camera_menu.addAction(action)
+
+    camera_menu.aboutToShow.connect(list_cameras)
+
     pause_actions = []
     for label, duration in (("Pause for 30 minutes", timedelta(minutes=30)), ("Pause for 1 hour", timedelta(hours=1)), ("Pause until resumed", None)):
         action = menu.addAction(label)
@@ -116,6 +158,10 @@ def main() -> int:
             action.setVisible(not paused)
         resume_action.setVisible(paused)
 
+    def prompt_recalibration() -> None:
+        tray.showMessage("Holdup: camera view changed",
+                         "Your Baseline no longer fits. Choose Recalibrate in the tray menu to resume watching.")
+
     def tick() -> None:
         if calibration.isVisible():
             calibration.refresh()
@@ -128,8 +174,7 @@ def main() -> int:
             mirror.follow(monitor.mirror_visible)
             show_state()
             if monitor.take_recalibration_prompt():
-                tray.showMessage("Holdup: camera view changed",
-                                 "Your Baseline no longer fits. Choose Recalibrate in the tray menu to resume watching.")
+                prompt_recalibration()
         if frame is None:
             return
         for window in (mirror, calibration):

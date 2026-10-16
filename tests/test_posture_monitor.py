@@ -611,3 +611,49 @@ def test_while_the_baseline_is_stale_frames_are_analysed_about_once_a_second():
     assert not monitor.analysis_due()
     clock.advance(0.1)
     assert monitor.analysis_due()
+
+
+def test_choosing_another_camera_makes_the_baseline_stale_with_one_prompt_until_recalibrated():
+    clock = FakeClock()
+    store = Store()
+    monitor = PostureMonitor(clock=clock, store=store)
+    monitor.begin_calibration()
+    sit(monitor, clock, upright(), 6)
+
+    monitor.camera_changed("USB Camera")
+    prompts = monitor.take_recalibration_prompt()
+    prompts += take_prompts(monitor, clock, leaning_forward(), 30)
+
+    assert monitor.state is MonitorState.STALE_BASELINE
+    assert not monitor.mirror_visible
+    assert prompts == 1
+    assert PostureMonitor(clock=clock, store=store).camera == "USB Camera"
+
+    monitor.begin_calibration()
+    sit(monitor, clock, upright(), 6)
+    assert monitor.state is MonitorState.GOOD_POSTURE
+
+
+def test_choosing_the_same_camera_again_keeps_the_baseline():
+    clock = FakeClock()
+    monitor = calibrated(clock)
+    monitor.camera_changed("USB Camera")
+    monitor.take_recalibration_prompt()
+    monitor.begin_calibration()
+    sit(monitor, clock, upright(), 6)
+
+    monitor.camera_changed("USB Camera")
+
+    assert take_prompts(monitor, clock, upright(), 2) == 0
+    assert monitor.state is MonitorState.GOOD_POSTURE
+
+
+def test_choosing_a_camera_before_the_first_calibration_just_remembers_it():
+    clock = FakeClock()
+    monitor = PostureMonitor(clock=clock)
+
+    monitor.camera_changed("USB Camera")
+
+    assert monitor.camera == "USB Camera"
+    assert take_prompts(monitor, clock, upright(), 2) == 0
+    assert monitor.state is MonitorState.UNCALIBRATED

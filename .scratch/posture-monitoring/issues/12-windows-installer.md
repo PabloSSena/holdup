@@ -4,7 +4,7 @@
 
 **Blocked by:** 01
 
-**Status:** ready-for-agent
+**Status:** ready-for-human
 
 - [ ] A documented build command produces a Windows installer
 - [ ] Installing on a clean Windows machine (no Python) and launching shows the tray icon and detects the User as present or Absent

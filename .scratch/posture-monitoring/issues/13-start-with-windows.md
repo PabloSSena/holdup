@@ -4,7 +4,7 @@
 
 **Blocked by:** 03, 12
 
-**Status:** ready-for-agent
+**Status:** ready-for-human
 
 - [ ] After install, Holdup starts automatically at the next login
 - [ ] The tray menu has a Start with Windows toggle reflecting the current state

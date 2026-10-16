@@ -1,5 +1,6 @@
-"""Camera Source: opens the Windows default camera and hands out frames in memory only."""
+"""Camera Source: opens the chosen camera and hands out frames in memory only."""
 import time
+from typing import Callable
 
 import cv2
 import numpy as np
@@ -8,8 +9,9 @@ RETRY_INTERVAL = 3.0  # seconds between attempts to reopen a camera that could n
 
 
 class CameraSource:
-    def __init__(self, index: int = 0):
-        self._index = index
+    def __init__(self, locate: Callable[[], int | None] = lambda: 0):
+        """locate gives the camera's index on each open attempt, or None while that camera is missing."""
+        self._locate = locate
         self._capture: cv2.VideoCapture | None = None
         self._next_open = 0.0
 
@@ -19,7 +21,10 @@ class CameraSource:
             if time.monotonic() < self._next_open:
                 return None
             self._next_open = time.monotonic() + RETRY_INTERVAL
-            self._capture = cv2.VideoCapture(self._index, cv2.CAP_DSHOW)  # default MSMF backend took ~45 s to open here
+            index = self._locate()
+            if index is None:
+                return None
+            self._capture = cv2.VideoCapture(index, cv2.CAP_DSHOW)  # default MSMF backend took ~45 s to open here
             # Keep only the newest frame, so a slow analysis rate never sees a stale one.
             self._capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
         ok, frame = self._capture.read()
