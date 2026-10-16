@@ -15,7 +15,10 @@ from holdup.posture_classifier import Sensitivity
 from holdup.posture_monitor import PostureMonitor
 from holdup.start_with_windows import RunKey, StartWithWindows
 from holdup.store import Store, default_path
-from holdup.windows import CalibrationWindow, MirrorWindow, StatsWindow
+from holdup.ui.actions import Actions
+from holdup.ui.main_window import MainWindow
+from holdup.ui.theme import load_fonts
+from holdup.windows import MirrorWindow
 
 TICK_MS = 33  # smooth feed while a window shows it; analysis still only runs when the Posture Monitor says it is due
 
@@ -29,6 +32,7 @@ def main() -> int:
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
     app.setWindowIcon(app_icon())
+    load_fonts()
 
     detector = PoseDetector()
     store = Store(default_path())
@@ -46,35 +50,32 @@ def main() -> int:
     first_launch = not monitor.calibrated
     if first_launch:
         monitor.begin_calibration()
-    calibration = CalibrationWindow(monitor)
-    stats = StatsWindow(monitor)
-
-    def show_stats() -> None:
-        stats.show()
-        stats.raise_()
-        stats.activateWindow()
 
     def recalibrate() -> None:
         monitor.begin_calibration()
-        calibration.show()
-        calibration.raise_()
-        calibration.activateWindow()
+        main_window.show_calibration()
 
     icons = {glyph: tray_icon(glyph) for glyph in TRAY_COLORS}
     tray = QSystemTrayIcon()
     menu = QMenu()
-    menu.addAction("Stats").triggered.connect(show_stats)
+    menu.addAction("Open Holdup").triggered.connect(lambda: main_window.present())
     recalibrate_action = QAction("Recalibrate", menu)
     recalibrate_action.triggered.connect(recalibrate)
     menu.addAction(recalibrate_action)
     sensitivity_menu = menu.addMenu("Sensitivity")
     sensitivity_group = QActionGroup(sensitivity_menu)  # exclusive: one choice marked at a time
+    sensitivity_actions = {}
     for level in Sensitivity:
         action = sensitivity_group.addAction(level.value)
         action.setCheckable(True)
         action.setChecked(level is monitor.sensitivity)
         action.triggered.connect(lambda _=False, level=level: setattr(monitor, "sensitivity", level))
         sensitivity_menu.addAction(action)
+        sensitivity_actions[level] = action
+
+    def set_sensitivity(level: Sensitivity) -> None:
+        monitor.sensitivity = level
+        sensitivity_actions[level].setChecked(True)
 
     def pause(duration: timedelta | None) -> None:
         monitor.pause(duration)
@@ -121,6 +122,7 @@ def main() -> int:
     resume_action = menu.addAction("Resume")
     resume_action.triggered.connect(resume)
     menu.addSeparator()
+    start_with_windows = None
     if getattr(sys, "frozen", False):  # from source there is no exe to register
         start_with_windows = StartWithWindows(store, RunKey(), sys.executable)
         start_with_windows.apply()
@@ -132,6 +134,13 @@ def main() -> int:
     menu.addAction(quit_action)
     tray.setContextMenu(menu)
 
+    main_window = MainWindow(monitor, Actions(
+        pause=pause, resume=resume, recalibrate=recalibrate, set_sensitivity=set_sensitivity,
+        camera_names=_camera_names, choose_camera=choose_camera, start_with_windows=start_with_windows,
+    ))
+    calibration = main_window.calibration
+    tray.activated.connect(lambda reason: reason == QSystemTrayIcon.Trigger and main_window.present())
+
     def show_state() -> None:
         paused = monitor.paused
         tray.setIcon(icons[tray_glyph(monitor.state, paused)])
@@ -139,6 +148,8 @@ def main() -> int:
         for action in pause_actions:
             action.setVisible(not paused)
         resume_action.setVisible(paused)
+        if main_window.isVisible():
+            main_window.refresh()
 
     def prompt_recalibration() -> None:
         tray.showMessage("Holdup: camera view changed",
@@ -167,7 +178,7 @@ def main() -> int:
     show_state()
     tray.show()
     if first_launch:
-        calibration.show()
+        main_window.show_calibration()
     # shortcut: camera read and detection run on the Qt thread (~tens of ms at 1-3 fps); move to a worker if the tray stutters.
     timer = QTimer()
     timer.timeout.connect(tick)

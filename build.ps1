@@ -6,6 +6,7 @@ Set-Location $PSScriptRoot
 & .venv\Scripts\pyinstaller --noconfirm --clean --windowed --name Holdup --icon assets\holdup.ico `
     --paths src `
     --add-data "src\holdup\models;holdup\models" `
+    --add-data "src\holdup\fonts;holdup\fonts" `
     --collect-binaries mediapipe `
     src\holdup\__main__.py
 if ($LASTEXITCODE) { throw "PyInstaller failed" }

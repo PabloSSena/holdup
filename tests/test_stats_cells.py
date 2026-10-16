@@ -1,4 +1,4 @@
-"""What one day's row in the Stats window says."""
+"""What one day's row of Daily Stats says (the History page's table)."""
 from holdup.posture_monitor import DailyStats
 from holdup.windows import stats_cells
 
