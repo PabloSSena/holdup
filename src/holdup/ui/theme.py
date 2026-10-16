@@ -46,6 +46,27 @@ def stylesheet(t: dict[str, str]) -> str:
     QPushButton {{ min-height: 36px; max-height: 36px; padding: 0 16px; border-radius: 10px; border: 1px solid {t['ln']};
         background: {t['cd']}; font-weight: 600; }}
     QPushButton[role="primary"] {{ background: {t['ac']}; color: {t['aci']}; border: none; }}
+
+    #history *[role="segment"] {{ background: {t['sb']}; border-radius: 10px; }}
+    #history *[role="segment"] QPushButton {{ min-height: 30px; max-height: 30px; padding: 0 12px; border: none;
+        border-radius: 8px; background: transparent; font-size: 13px; }}
+    #history *[role="segment"] QPushButton:checked {{ background: {t['cd']}; }}
+    #history QPushButton#clear {{ padding: 0 14px; background: transparent; font-size: 13px; }}
+    #history QPushButton#clear:disabled {{ color: {t['mu']}; }}
+    #history *[role="heading"] {{ font-size: 15px; font-weight: 700; }}
+    #history *[role="small-muted"] {{ font-size: 13px; color: {t['mu']}; }}
+    #history *[role="small-strong"] {{ font-size: 13px; font-weight: 700; }}
+    #history *[role="column"] {{ font-size: 12px; font-weight: 600; color: {t['mu']}; }}
+    #history *[role="row"] {{ background: transparent; border: none; border-bottom: 1px solid {t['ln']}; border-radius: 0; }}
+    #history *[role="day"] {{ font-weight: 600; }}
+    #history *[role="share-good"] {{ font-weight: 700; }}
+    #history *[role="swatch-good"] {{ background: {t['ac']}; border-radius: 3px; }}
+    #history *[role="swatch-forward"] {{ background: {t['fw']}; border-radius: 3px; }}
+    #history *[role="swatch-side"] {{ background: {t['sd']}; border-radius: 3px; }}
+    *[role="dialog-title"] {{ font-size: 18px; font-weight: 700; }}
+    #confirm {{ background: {t['scrim']}; }}
+    #confirm QPushButton {{ background: transparent; font-size: 13px; }}
+    #confirm QPushButton[role="danger"] {{ background: #C2453F; color: #FFFFFF; border: none; }}
     """
 
 

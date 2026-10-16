@@ -6,7 +6,7 @@ from PySide6.QtCore import QRectF, QSize, Qt
 from PySide6.QtGui import QColor, QGuiApplication, QImage, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
-from holdup.posture_monitor import DailyStats, MonitorState, PostureMonitor
+from holdup.posture_monitor import MonitorState, PostureMonitor
 
 MIRROR_SIZE = QSize(320, 240)
 CALIBRATION_FEED_SIZE = QSize(480, 360)
@@ -129,15 +129,3 @@ class CalibrationWindow(QWidget):
             self._status.setText("Done: your Baseline is captured. Holdup is now watching your posture.")
         self._retry.setVisible(failed)
         self._close.setVisible(not calibrating)
-
-
-STATS_COLUMNS = ("Good Posture", "Forward Lean", "Side Lean", "Mirror")
-
-
-def stats_cells(stats: DailyStats | None) -> list[str]:
-    """One day's row: shares of Watched Time and the Mirror count; a day without Watched Time is empty, not 0%."""
-    if not stats or not stats.watched_time:
-        return [""] * len(STATS_COLUMNS)
-    shares = (stats.good_posture, stats.forward_lean, stats.side_lean)
-    return [f"{round(100 * seconds / stats.watched_time)}%" for seconds in shares] + [str(stats.mirror_count)]
-
