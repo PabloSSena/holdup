@@ -94,7 +94,7 @@ def main() -> int:
 
     def pause(duration: timedelta | None) -> None:
         monitor.pause(duration)
-        mirror.follow(monitor.mirror_visible)
+        mirror.follow(monitor.mirror_visible, monitor.state)
         show_state()
 
     def resume() -> None:
@@ -171,7 +171,7 @@ def main() -> int:
         frame = camera.read()
         if due:
             monitor.observe(CameraUnavailable() if frame is None else detector.detect(frame))
-            mirror.follow(monitor.mirror_visible)
+            mirror.follow(monitor.mirror_visible, monitor.state)
             show_state()
             if monitor.take_recalibration_prompt():
                 prompt_recalibration()
