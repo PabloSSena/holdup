@@ -115,6 +115,19 @@ class PostureMonitor:
         self._bad_since = None
         self._view_changed_since = None
 
+    def cancel_calibration(self) -> None:
+        """End a Calibration in progress, keeping the Baseline (and a Stale one Stale); judging resumes on the next frame."""
+        self._calibration_started = None
+        self._captured = []
+        self.calibration_failed = False
+
+    def calibration_progress(self) -> float:
+        """How much of the Baseline capture has passed, 0..1 (0 during the countdown or when not calibrating)."""
+        if self._calibration_started is None:
+            return 0.0
+        captured = self._clock() - self._calibration_started - CALIBRATION_COUNTDOWN
+        return min(max(captured / CALIBRATION_CAPTURE, 0.0), 1.0)
+
     def take_recalibration_prompt(self) -> bool:
         """True once per Stale Baseline episode: the moment to ask the User to recalibrate."""
         prompt, self._prompt = self._prompt, False
