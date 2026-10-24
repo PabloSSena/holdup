@@ -20,5 +20,7 @@ if (-not $iscc) {
     Write-Warning "Inno Setup 6 not found; skipped the installer. Install it (winget install JRSoftware.InnoSetup) and rerun."
     exit 0
 }
-& $iscc installer.iss
+$version = & .venv\Scripts\python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])"
+if ($LASTEXITCODE) { throw "Could not read the version from pyproject.toml" }
+& $iscc "/DAppVersion=$version" installer.iss
 if ($LASTEXITCODE) { throw "Inno Setup failed" }

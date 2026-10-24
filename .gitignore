@@ -6,3 +6,6 @@ build/
 dist/
 *.spec
 .claude/worktrees/
+site/node_modules/
+site/dist/
+.scratch/

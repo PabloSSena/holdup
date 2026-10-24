@@ -1,7 +1,10 @@
 ; Inno Setup 6 script: wraps the PyInstaller output in dist\Holdup into dist\HoldupSetup.exe.
 ; Built by build.ps1; do not run before PyInstaller.
 
-#define AppVersion "0.1.0"
+; build.ps1 passes /DAppVersion from pyproject.toml, the one place the version lives.
+#ifndef AppVersion
+  #error AppVersion is not set: build with build.ps1
+#endif
 
 [Setup]
 ; AppId identifies the install for upgrades and uninstall; never change it.
