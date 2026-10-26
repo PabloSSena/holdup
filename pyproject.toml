@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "holdup"
-version = "0.1.0"
+version = "1.0.0"
 description = "Windows tray app that watches your sitting posture through your own camera."
 license = "MIT"
 license-files = ["LICENSE"]
