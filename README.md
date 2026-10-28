@@ -19,7 +19,9 @@ A Windows tray app that watches your sitting posture through your own camera. Wh
 Camera frames are analysed in memory and discarded. Nothing is recorded or sent anywhere.
 
 - **Calibration**: at first launch you sit up straight for a few seconds to capture your Baseline; every judgement compares against it. If the camera view changes a lot (camera moved, another camera chosen) Holdup stops judging and asks you to recalibrate.
+
 https://github.com/user-attachments/assets/bd20f85b-91d2-4f1a-ab73-b012c309fece
+
 - **Today, History, Settings**: a main window (click the tray icon) shows today's share of time in Good Posture, Forward Lean and Side Lean, past days, and settings: Sensitivity, camera, Baseline, Start with Windows and language (English or Brazilian Portuguese, following Windows by default).
 - **Pause** for 30 minutes, 1 hour or until resumed, from the tray menu.
 - Daily Stats are numbers only, kept in `%LOCALAPPDATA%\Holdup\holdup.db`.
