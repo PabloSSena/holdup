@@ -34,17 +34,9 @@
   "how.title": "Como funciona",
 
   "privacy.body": "Cada quadro da câmera é analisado na memória e descartado. O Holdup só guarda números, como quantos minutos você ficou bem sentado hoje, e eles nunca saem do seu computador.",
-  "privacy.frame": "quadro {n} · {state}",
-  "privacy.frame.analysing": "analisando",
-  "privacy.frame.discarded": "descartado",
-  "privacy.frame.memory": "na memória",
   "privacy.site": "Este site conta visitas anônimas com o GoatCounter. Sem cookies, nada pessoal.",
-  "privacy.stat.accounts": "contas",
-  "privacy.stat.images": "imagens guardadas",
-  "privacy.stat.local": "no seu PC",
-  "privacy.stat.offline": "offline",
-  "privacy.stat.offlineValue": "Funciona",
   "privacy.title": "Sua câmera continua sua",
+  "privacy.video": "A tela de calibração do Holdup em contagem regressiva enquanto você se senta direito",
 
   "features.baseline.body": "O Holdup compara você com você mesmo. Mudou a câmera de lugar ou trocou de cadeira? Ele percebe e pede para você Recalibrar.",
   "features.baseline.title": "Sua própria Referência",

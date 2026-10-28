@@ -34,17 +34,9 @@
   "how.title": "How it works",
 
   "privacy.body": "Every camera frame is analysed in memory and thrown away. Holdup only keeps numbers, like how many minutes you sat well today, and they never leave your computer.",
-  "privacy.frame": "frame {n} · {state}",
-  "privacy.frame.analysing": "analysing",
-  "privacy.frame.discarded": "discarded",
-  "privacy.frame.memory": "in memory",
   "privacy.site": "This website counts anonymous visits with GoatCounter. No cookies, nothing personal.",
-  "privacy.stat.accounts": "accounts",
-  "privacy.stat.images": "images stored",
-  "privacy.stat.local": "on your PC",
-  "privacy.stat.offline": "offline",
-  "privacy.stat.offlineValue": "Works",
   "privacy.title": "Your camera stays yours",
+  "privacy.video": "The Holdup calibration screen counting down while you sit up straight",
 
   "features.baseline.body": "Holdup compares you with you. Moved your camera or changed chairs? It notices and asks you to Recalibrate.",
   "features.baseline.title": "Your own Baseline",

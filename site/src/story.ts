@@ -26,7 +26,7 @@ export const word = (text: string, values: Record<string, string | number>) =>
 export type Step = 1 | 2 | 3 | 4;
 
 // Track heights in viewport heights (the features track is sized from its row's width instead).
-const TRACKS = { intro: 3.8, how: 3.8, privacy: 3, oss: 2.8 } as const;
+const TRACKS = { intro: 3.8, how: 3.8, oss: 2.8 } as const;
 
 /** Wires the story to `root` and returns a cleanup. `relayout` must be called when the text (and so the letters) changes. */
 export function startStory(root: HTMLElement, getT: () => (key: Key) => string, onStep: (step: Step) => void) {
@@ -173,33 +173,6 @@ export function startStory(root: HTMLElement, getT: () => (key: Key) => string, 
     }
     const nextStep: Step = reduced ? 4 : m < 0.2 ? 1 : m < 0.56 ? 2 : m < 0.79 ? 3 : 4;
     if (nextStep !== step) onStep((step = nextStep));
-
-    // 3 · privacy: a frame is scanned, shredded, and the numbers count in
-    const pv = prog(q('[data-track="privacy"]'));
-    const sc = seg(pv, 0.05, 0.28), shred = seg(pv, 0.3, 0.6);
-    const line = q("[data-scan]");
-    if (line) {
-      line.style.top = sc * 100 + "%";
-      line.style.opacity = sc > 0 && sc < 1 ? "1" : "0";
-    }
-    qa("[data-kp]").forEach((el) => {
-      const y = Number(el.dataset.kp);
-      el.style.opacity = String(seg(sc, y - 0.08, y) * (1 - seg(shred, 0, 0.3)));
-    });
-    const label = q("[data-flabel]");
-    if (label) {
-      const state = t(shred > 0 ? "privacy.frame.discarded" : sc > 0 ? "privacy.frame.analysing" : "privacy.frame.memory");
-      label.textContent = word(t("privacy.frame"), { n: 1042 + Math.floor(pv * 240), state });
-      label.style.opacity = String(1 - seg(shred, 0.1, 0.4));
-    }
-    qa("[data-strip]").forEach((el, i) => {
-      const l = inOutCubic(seg(shred, i * 0.05, i * 0.05 + 0.6)), dir = i % 2 ? 1 : -1;
-      el.style.transform = `translate(${dir * l * (40 + i * 7)}%, ${l * (30 + i * 14)}px) rotate(${dir * l * (6 + i)}deg)`;
-      el.style.opacity = String(1 - seg(l, 0.4, 1));
-    });
-    qa("[data-tile]").forEach((el, j) => set(el, "--t", outExpo(seg(pv, 0.5 + j * 0.08, 0.64 + j * 0.08))));
-    const count = q("[data-count]");
-    if (count) count.textContent = Math.round(100 * seg(pv, 0.58, 0.8)) + "%";
 
     // 4 · features: a horizontal conveyor; each card settles as it enters
     const ft = q('[data-track="features"]'), row = q("[data-row]");

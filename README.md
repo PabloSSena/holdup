@@ -1,4 +1,18 @@
-# Holdup
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.svg">
+    <img src="assets/logo-light.svg" alt="Holdup" height="96">
+  </picture>
+</p>
+
+<p align="center">Stop leaning into your screen.</p>
+
+<p align="center">
+  <a href="https://pablossena.github.io/holdup/">Website</a> |
+  <a href="https://github.com/PabloSSena/holdup/releases/latest">Download</a> |
+  <a href="LICENSE">License (MIT)</a> |
+  <a href="#development">Contribute</a>
+</p>
 
 A Windows tray app that watches your sitting posture through your own camera. When you lean forward or to one side for more than 5 seconds, a small Mirror of your live camera feed appears in the bottom-left corner of the screen, and it disappears as soon as you sit well again.
 
