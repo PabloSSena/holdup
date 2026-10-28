@@ -20,7 +20,7 @@ Camera frames are analysed in memory and discarded. Nothing is recorded or sent 
 
 - **Calibration**: at first launch you sit up straight for a few seconds to capture your Baseline; every judgement compares against it. If the camera view changes a lot (camera moved, another camera chosen) Holdup stops judging and asks you to recalibrate.
 
-https://github.com/user-attachments/assets/bd20f85b-91d2-4f1a-ab73-b012c309fece
+<p align="center"><img src="assets/calibration.gif" alt="Calibration" width="800"></p>
 
 - **Today, History, Settings**: a main window (click the tray icon) shows today's share of time in Good Posture, Forward Lean and Side Lean, past days, and settings: Sensitivity, camera, Baseline, Start with Windows and language (English or Brazilian Portuguese, following Windows by default).
 - **Pause** for 30 minutes, 1 hour or until resumed, from the tray menu.
