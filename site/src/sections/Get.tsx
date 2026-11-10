@@ -23,10 +23,7 @@ export function Get() {
               </li>
             ))}
           </ol>
-          <figure className="smartscreen">
-            <Media file="smartscreen.png" alt={t("get.shot")} note="“Windows protected your PC” after More info" />
-            <figcaption>{rich(t("get.caption"))}</figcaption>
-          </figure>
+
         </div>
         <p className="requirements">{t("get.requirements")}</p>
       </div>

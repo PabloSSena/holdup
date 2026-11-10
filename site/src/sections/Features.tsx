@@ -46,13 +46,11 @@ export function Features() {
             </span>
             <h3>{t("features.stats.title")}</h3>
             <p>{t("features.stats.body")}</p>
-            <Media className="card-media" file="history.png" alt={t("features.stats.shot")} note="app window · 960×640" />
           </article>
           <article className="card card-wide" data-card>
             <span className="icon icon-tray" aria-hidden="true" />
             <h3>{t("features.quiet.title")}</h3>
             <p>{t("features.quiet.body")}</p>
-            <Media className="card-media" file="today.png" alt={t("features.quiet.shot")} note="app window · 960×640" />
           </article>
         </div>
       </div>

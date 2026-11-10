@@ -7,7 +7,7 @@
 @font-face { font-family: Figtree; font-weight: 700; font-display: swap; src: url("./fonts/Figtree-Bold.ttf") format("truetype"); }
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
   --bg: light-dark(#F4F1EB, #161B19);
   --sb: light-dark(#ECE7DE, #1B211F);
   --cd: light-dark(#FFFFFF, #222A27);
@@ -119,6 +119,19 @@ button { font: inherit; }
 /* 2 · How it works */
 .how { border-top: 1px solid var(--ln); }
 .how .stage, .privacy .stage { display: flex; align-items: center; padding: 76px 20px 20px; }
+/* Scroll hint: pinned to the bottom of the sticky stage; the stage keeps room for it below the content. */
+.how .stage { padding-bottom: 64px; }
+.how .scroll-hint {
+  position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 2; margin: 0; pointer-events: none;
+  display: inline-flex; align-items: center; gap: 8px; width: max-content; max-width: calc(100% - 32px);
+  padding: 8px 16px 8px 14px; border-radius: 999px; font-size: 14px; font-weight: 600; line-height: 1.3; text-align: center;
+  color: var(--aci); background: var(--ac); box-shadow: 0 12px 28px -14px color-mix(in oklch, var(--ac) 85%, transparent);
+}
+.how .scroll-hint svg { flex: none; width: 14px; height: 14px; animation: scroll-hint-bob 1.6s ease-in-out infinite; }
+@keyframes scroll-hint-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
+@media (prefers-reduced-motion: reduce) { .how .scroll-hint svg { animation: none; } }
+/* Reduced motion shows every section finished and in normal flow, so there is nothing to keep scrolling for. */
+.reduced .how .scroll-hint { display: none; }
 .how-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: clamp(18px, 4vw, 56px); align-items: center; }
 .scene { position: relative; background: var(--sb); border: 1px solid var(--ln); border-radius: 20px; padding: 44px 8px 0; overflow: hidden; }
 .scene svg { width: 100%; height: auto; display: block; max-height: 52vh; }

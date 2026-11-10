@@ -75,6 +75,12 @@ export function How({ step }: { step: Step }) {
             </ol>
           </div>
         </div>
+        <p className="scroll-hint">
+          <span>{t("how.scrollHint")}</span>
+          <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+            <path d="M3.5 6 8 10.5 12.5 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </p>
       </div>
     </section>
   );
