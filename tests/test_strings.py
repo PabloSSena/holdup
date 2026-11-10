@@ -1,4 +1,4 @@
-"""The copy in Brazilian Portuguese, from the design, when Windows is set to Portuguese."""
+"""The copy in Brazilian Portuguese, from the design, when the system is set to Portuguese."""
 from datetime import date, datetime
 
 from holdup.posture_monitor import DailyStats, MonitorState

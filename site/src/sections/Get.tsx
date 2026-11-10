@@ -1,9 +1,10 @@
-import { DownloadButton } from "../DownloadButton";
+import { DownloadButton, PLATFORM } from "../DownloadButton";
 import { useI18n, type Key } from "../i18n";
-import { Media } from "../Media";
 import { rich } from "../rich";
 
-const STEPS = ["get.1", "get.2", "get.3", "get.4"] as const satisfies readonly Key[];
+// The visitor's OS's steps; on a phone or tablet the Windows ones, the most common computer.
+const OS = PLATFORM ?? "windows";
+const STEPS = [`get.${OS}.1`, `get.${OS}.2`, `get.${OS}.3`, "get.done"] as const satisfies readonly Key[];
 
 export function Get() {
   const { t } = useI18n();
@@ -25,7 +26,7 @@ export function Get() {
           </ol>
 
         </div>
-        <p className="requirements">{t("get.requirements")}</p>
+        <p className="requirements">{t(`get.${OS}.requirements`)}</p>
       </div>
     </section>
   );

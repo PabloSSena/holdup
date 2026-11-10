@@ -1,4 +1,5 @@
 """Tray App: the Qt shell that wires the Camera Source, Pose Detector, Posture Monitor and windows together."""
+import os
 import sys
 from datetime import datetime, timedelta
 
@@ -7,30 +8,39 @@ from PySide6.QtGui import QAction, QActionGroup
 from PySide6.QtMultimedia import QMediaDevices
 from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 
-from holdup.camera_source import CameraSource
+from holdup.camera_source import CameraSource, capture_index
 from holdup.icons import TRAY_COLORS, app_icon, tray_glyph, tray_icon
 from holdup.observation import CameraUnavailable
 from holdup.pose_detector import PoseDetector
 from holdup.posture_classifier import Sensitivity
 from holdup.posture_monitor import PostureMonitor
-from holdup.start_with_windows import RunKey, StartWithWindows
+from holdup.start_at_login import StartAtLogin, app_executable, login_item
 from holdup.store import Store, default_path
 from holdup.ui.actions import Actions
 from holdup.ui.main_window import MainWindow
 from holdup.ui import strings
-from holdup.ui.strings import LANGUAGE, tr
+from holdup.ui.strings import LANGUAGE, start_at_login_copy, tr
 from holdup.ui.theme import load_fonts
 from holdup.windows import MirrorWindow
 
 TICK_MS = 33  # smooth feed while a window shows it; analysis still only runs when the Posture Monitor says it is due
 
 
+def _device_id(device) -> str:
+    return bytes(device.id()).decode(errors="replace")
+
+
 def _camera_names() -> list[str]:
-    # shortcut: assumes Qt lists cameras in DirectShow's order (true on typical setups); enumerate DirectShow itself if a wrong camera opens.
-    return [device.description() for device in QMediaDevices.videoInputs()]
+    """Cameras plugged in right now, the system default first: it is the one used until the User chooses."""
+    devices = QMediaDevices.videoInputs()
+    default = _device_id(QMediaDevices.defaultVideoInput())
+    return [device.description() for device in sorted(devices, key=lambda device: _device_id(device) != default)]
 
 
 def main() -> int:
+    if sys.platform.startswith("linux"):
+        # Wayland ignores window positions and always-on-top, which the Mirror needs; XWayland honours both.
+        os.environ.setdefault("QT_QPA_PLATFORM", "xcb")
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
     app.setWindowIcon(app_icon())
@@ -42,11 +52,16 @@ def main() -> int:
     monitor = PostureMonitor(clock=datetime.now, store=store)
 
     def locate_camera() -> int | None:
-        """The chosen camera's index; a saved camera that is missing gives None, so Camera Unavailable is retried."""
-        names = _camera_names()
+        """The chosen camera's OpenCV index, else the system default's; a saved camera that is missing (or no camera
+        at all) gives None, so Camera Unavailable is retried."""
+        devices = QMediaDevices.videoInputs()
+        ids = [_device_id(device) for device in devices]
         if monitor.camera is None:
-            return 0
-        return names.index(monitor.camera) if monitor.camera in names else None
+            default = _device_id(QMediaDevices.defaultVideoInput())
+            wanted = default if default in ids else ids[0] if ids else None
+        else:
+            wanted = next((_device_id(d) for d in devices if d.description() == monitor.camera), None)
+        return None if wanted is None else capture_index(ids, wanted)
 
     camera = CameraSource(locate_camera)
     mirror = MirrorWindow()
@@ -122,13 +137,13 @@ def main() -> int:
     resume_action = menu.addAction(tr("Resume"))
     resume_action.triggered.connect(resume)
     menu.addSeparator()
-    start_with_windows = None
-    if getattr(sys, "frozen", False):  # from source there is no exe to register
-        start_with_windows = StartWithWindows(store, RunKey(), sys.executable)
-        start_with_windows.apply()
-        start_action = QAction(tr("Start with Windows"), menu, checkable=True, checked=start_with_windows.enabled)
-        start_action.toggled.connect(start_with_windows.set_enabled)
-        menu.aboutToShow.connect(lambda: start_action.setChecked(start_with_windows.enabled))  # the Settings page may have changed it
+    start_at_login = None
+    if getattr(sys, "frozen", False):  # from source there is no app to register
+        start_at_login = StartAtLogin(store, login_item(), app_executable())
+        start_at_login.apply()
+        start_action = QAction(tr(start_at_login_copy()[0]), menu, checkable=True, checked=start_at_login.enabled)
+        start_action.toggled.connect(start_at_login.set_enabled)
+        menu.aboutToShow.connect(lambda: start_action.setChecked(start_at_login.enabled))  # the Settings page may have changed it
         menu.addAction(start_action)
     quit_action = QAction(tr("Quit"), menu)
     quit_action.triggered.connect(app.quit)
@@ -138,13 +153,13 @@ def main() -> int:
     def set_language(language: str) -> None:
         """Every window and menu reads the language once when built, so restart rather than rebuild them all."""
         store.set(LANGUAGE, language)
-        command = [sys.executable] if getattr(sys, "frozen", False) else [sys.executable, "-m", "holdup"]
+        command = [app_executable()] if getattr(sys, "frozen", False) else [sys.executable, "-m", "holdup"]
         QProcess.startDetached(command[0], command[1:])
         app.quit()
 
     main_window = MainWindow(monitor, Actions(
         pause=pause, resume=resume, recalibrate=recalibrate, set_sensitivity=set_sensitivity,
-        camera_names=_camera_names, choose_camera=choose_camera, start_with_windows=start_with_windows,
+        camera_names=_camera_names, choose_camera=choose_camera, start_at_login=start_at_login,
         retry_camera=camera.close, set_language=set_language,
     ))
     calibration = main_window.calibration

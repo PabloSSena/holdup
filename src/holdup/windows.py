@@ -37,6 +37,7 @@ class MirrorWindow(QLabel):
             Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool | Qt.WindowDoesNotAcceptFocus
         )
         self.setAttribute(Qt.WA_ShowWithoutActivating)
+        self.setAttribute(Qt.WA_MacAlwaysShowToolWindow)  # macOS hides tool windows of inactive apps, i.e. always
         self.setFixedSize(MIRROR_SIZE)
         self.setStyleSheet("background: black")
         self.setAlignment(Qt.AlignCenter)

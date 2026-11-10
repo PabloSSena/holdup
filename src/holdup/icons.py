@@ -133,9 +133,17 @@ def write_ico(path: str) -> None:
             ico.write(png)
 
 
-if __name__ == "__main__":  # regenerate the checked-in icon: python -m holdup.icons assets/holdup.ico
+def write_png(path: str, size: int = 256) -> None:
+    """Writes the app icon as one PNG, the format Linux desktops use."""
+    pixmap = QPixmap(size, size)
+    _paint_app(pixmap)
+    if not pixmap.save(path, "PNG"):
+        raise OSError(f"could not write {path}")
+
+
+if __name__ == "__main__":  # regenerate the checked-in icon: python -m holdup.icons assets/holdup.ico (or a .png)
     import sys
     from PySide6.QtGui import QGuiApplication
 
     app = QGuiApplication(sys.argv)
-    write_ico(sys.argv[1])
+    (write_png if sys.argv[1].endswith(".png") else write_ico)(sys.argv[1])

@@ -22,7 +22,7 @@ CALIBRATION_CAPTURE = timedelta(seconds=2)
 BASELINE = "baseline"  # Store name of the Baseline landmarks
 BASELINE_CAPTURED_AT = "baseline_captured_at"  # Store name of when the Baseline was captured (ISO local time)
 SENSITIVITY = "sensitivity"  # Store name of the User's Sensitivity ("Low", "Medium" or "High")
-CAMERA = "camera"  # Store name of the chosen camera's name; absent means the Windows default camera
+CAMERA = "camera"  # Store name of the chosen camera's name; absent means the system default camera
 
 # Watched Time between two frames goes to the earlier frame's posture; a longer gap (sleep, hibernate) adds nothing.
 STATS_MAX_GAP = timedelta(seconds=5)
@@ -142,7 +142,7 @@ class PostureMonitor:
 
     @property
     def camera(self) -> str | None:
-        """The name of the camera the User chose, or None for the Windows default camera."""
+        """The name of the camera the User chose, or None for the system default camera."""
         return self._store.get(CAMERA)
 
     def camera_changed(self, name: str) -> None:

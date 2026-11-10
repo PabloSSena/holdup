@@ -107,14 +107,17 @@ button { font: inherit; }
 .skew-line [data-ch] { display: inline-block; }
 .skew-line .q { color: var(--fw); }
 
-/* Download button and its not-on-Windows variant */
+/* Download button, the other build for the same OS, and the not-on-a-computer variant */
 .download { display: inline-flex; align-items: center; gap: 12px; background: var(--ac); color: var(--aci); font-weight: 600; font-size: 19px; padding: 18px 32px; border-radius: 999px; box-shadow: 0 14px 36px -14px color-mix(in oklch, var(--ac) 80%, transparent); }
+.download-group { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.download-other { font-size: 14px; font-weight: 600; color: var(--mu); text-decoration: underline; text-underline-offset: 3px; }
+.download-other:hover { color: var(--ink); }
 .download-square { font-size: 20px; padding: 19px 34px; border-radius: 14px; box-shadow: 0 8px 24px -10px color-mix(in oklch, var(--ac) 70%, transparent); }
-.not-windows { max-width: 520px; width: 100%; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px 18px; padding: 18px 20px; border-radius: 24px; background: var(--cd); box-shadow: 0 14px 40px -20px rgba(0, 0, 0, .3); text-align: left; }
-.not-windows p { margin: 0; flex: 1 1 240px; font-size: 16px; text-wrap: pretty; }
-.not-windows button { flex: none; border: 0; background: var(--acs); color: var(--ac); font-weight: 600; font-size: 15px; padding: 12px 20px; border-radius: 999px; cursor: pointer; min-height: 44px; }
-.not-windows-square { border-radius: 16px; border: 1px solid var(--ln); box-shadow: none; }
-.not-windows-square button { border: 1px solid var(--ln); background: var(--bg); color: var(--ink); padding: 11px 18px; border-radius: 12px; }
+.not-desktop { max-width: 520px; width: 100%; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px 18px; padding: 18px 20px; border-radius: 24px; background: var(--cd); box-shadow: 0 14px 40px -20px rgba(0, 0, 0, .3); text-align: left; }
+.not-desktop p { margin: 0; flex: 1 1 240px; font-size: 16px; text-wrap: pretty; }
+.not-desktop button { flex: none; border: 0; background: var(--acs); color: var(--ac); font-weight: 600; font-size: 15px; padding: 12px 20px; border-radius: 999px; cursor: pointer; min-height: 44px; }
+.not-desktop-square { border-radius: 16px; border: 1px solid var(--ln); box-shadow: none; }
+.not-desktop-square button { border: 1px solid var(--ln); background: var(--bg); color: var(--ink); padding: 11px 18px; border-radius: 12px; }
 
 /* 2 · How it works */
 .how { border-top: 1px solid var(--ln); }
