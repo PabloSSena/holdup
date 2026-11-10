@@ -101,8 +101,10 @@ jobs:
       - name: Check every file was built
         shell: bash
         # build.ps1 only warns when Inno Setup is missing; a release without the installer is a failure.
+        env:
+          FILES: ${{ matrix.files }}  # one per line; an env var, as pasting the lines into the script breaks it
         run: |
-          for file in ${{ matrix.files }}; do
+          for file in $FILES; do
             [ -f "$file" ] || { echo "::error::$file was not built"; exit 1; }
           done
 
