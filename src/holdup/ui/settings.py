@@ -1,4 +1,4 @@
-"""The Settings page: Sensitivity, camera, Baseline, Start with Windows and the privacy promise."""
+"""The Settings page: Sensitivity, camera, Baseline, Start at login and the privacy promise."""
 from datetime import datetime
 
 from PySide6.QtCore import QByteArray, QSize, Qt
@@ -12,7 +12,7 @@ from holdup.posture_classifier import Sensitivity
 from holdup.posture_monitor import MonitorState, PostureMonitor
 from holdup.ui.actions import Actions
 from holdup.ui import strings
-from holdup.ui.strings import LANGUAGES, short_date, tr
+from holdup.ui.strings import LANGUAGES, short_date, start_at_login_copy, tr
 from holdup.ui.theme import CARD_MARGINS, PAGE_MARGINS, THEMES
 
 STALE_TEXT = "Stale — the camera view changed. Recalibrate to resume watching."
@@ -191,15 +191,16 @@ class SettingsPage(QWidget):
         layout.addWidget(card)
 
         self._start = None
-        if actions.start_with_windows is not None:  # None when run from source, like the tray menu
+        if actions.start_at_login is not None:  # None when run from source, like the tray menu
             card, box = _card()
             box.setContentsMargins(22, 18, 22, 18)
             row = QHBoxLayout()
             row.setSpacing(16)
             text = QVBoxLayout()
             text.setSpacing(2)
-            text.addWidget(_label(tr("Start with Windows"), "heading"))
-            text.addWidget(_label(tr("Holdup starts in the tray when you sign in."), "note"))
+            title, note = start_at_login_copy()
+            text.addWidget(_label(tr(title), "heading"))
+            text.addWidget(_label(tr(note), "note"))
             row.addLayout(text, 1)
             self._start = QPushButton(checkable=True, cursor=Qt.PointingHandCursor)
             self._start.setProperty("role", "switch")
@@ -266,7 +267,7 @@ class SettingsPage(QWidget):
         if not self._camera.view().isVisible():  # don't change the list under an open dropdown
             self._show_current_camera()
         if self._start is not None:
-            self._start.setChecked(self._actions.start_with_windows.enabled)
+            self._start.setChecked(self._actions.start_at_login.enabled)
         dark = QGuiApplication.styleHints().colorScheme() == Qt.ColorScheme.Dark
         tokens = THEMES["dark" if dark else "light"]
         if tokens["mu"] != self._ink:
@@ -292,7 +293,7 @@ class SettingsPage(QWidget):
             self._camera.setCurrentIndex(0)  # "No camera found"
             return
         chosen = self._monitor.camera
-        # None is the Windows default camera, listed first; a chosen camera that is unplugged shows the placeholder.
+        # None is the system default camera, listed first; a chosen camera that is unplugged shows the placeholder.
         self._camera.setCurrentIndex(0 if chosen is None else self._cameras.index(chosen) if chosen in self._cameras else -1)
 
     def _choose_camera(self, name: str) -> None:
@@ -301,5 +302,5 @@ class SettingsPage(QWidget):
 
     def _toggle_start(self, on: bool) -> None:
         self._knob.parentWidget().layout().setAlignment(self._knob, Qt.AlignRight if on else Qt.AlignLeft)
-        if on != self._actions.start_with_windows.enabled:
-            self._actions.start_with_windows.set_enabled(on)
+        if on != self._actions.start_at_login.enabled:
+            self._actions.start_at_login.set_enabled(on)

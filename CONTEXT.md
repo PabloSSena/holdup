@@ -1,6 +1,6 @@
 # Holdup
 
-A Windows desktop app that watches a person at their computer through their own camera and warns them when their sitting posture degrades. Camera frames never leave the machine and are never stored.
+A desktop app (Windows, macOS, Linux) that watches a person at their computer through their own camera and warns them when their sitting posture degrades. Camera frames never leave the machine and are never stored.
 
 ## Language
 

@@ -2,6 +2,7 @@
 import json
 import os
 import sqlite3
+import sys
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -9,9 +10,14 @@ from typing import Any
 DAILY_STATS_COLUMNS = ("good_posture", "forward_lean", "side_lean", "mirror_count")
 
 
-def default_path() -> Path:
-    """%LOCALAPPDATA%\\Holdup\\holdup.db: per-user, and outside the install folder."""
-    return Path(os.environ["LOCALAPPDATA"]) / "Holdup" / "holdup.db"
+def default_path(platform: str = sys.platform) -> Path:
+    """Per-user, and outside the install folder: %LOCALAPPDATA%\\Holdup on Windows, ~/Library/Application Support/Holdup
+    on macOS, $XDG_DATA_HOME/holdup (~/.local/share/holdup) on Linux."""
+    if platform == "win32":
+        return Path(os.environ["LOCALAPPDATA"]) / "Holdup" / "holdup.db"
+    if platform == "darwin":
+        return Path.home() / "Library" / "Application Support" / "Holdup" / "holdup.db"
+    return Path(os.environ.get("XDG_DATA_HOME") or Path.home() / ".local" / "share") / "holdup" / "holdup.db"
 
 
 class Store:

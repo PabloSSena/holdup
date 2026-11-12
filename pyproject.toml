@@ -5,18 +5,22 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "holdup"
 version = "1.0.0"
-description = "Windows tray app that watches your sitting posture through your own camera."
+description = "Tray app for Windows, macOS and Linux that watches your sitting posture through your own camera."
 license = "MIT"
 license-files = ["LICENSE"]
 requires-python = ">=3.11,<3.12"
 dependencies = [
+    # 0.10.21 is the last mediapipe with Intel Mac wheels: pip picks it there, and the newest release elsewhere.
     "mediapipe>=0.10.20",
     "PySide6>=6.6",
 ]
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
-build = ["pyinstaller>=6.10"]
+build = [
+    "pyinstaller>=6.10",
+    "pillow; sys_platform == 'darwin'",  # PyInstaller converts assets/holdup.ico to the .icns a Mac app needs
+]
 
 [project.gui-scripts]
 holdup = "holdup.tray:main"

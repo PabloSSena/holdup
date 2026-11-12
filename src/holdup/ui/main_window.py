@@ -42,7 +42,7 @@ def _nav_icon(body: str, ink: str) -> QIcon:
 
 
 class MainWindow(QMainWindow):
-    """Closing hides it to the tray. Follows the Windows light/dark app theme."""
+    """Closing hides it to the tray. Follows the system light/dark app theme."""
 
     def __init__(self, monitor: PostureMonitor, actions: Actions):
         super().__init__()

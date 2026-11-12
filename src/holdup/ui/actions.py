@@ -4,7 +4,7 @@ from datetime import timedelta
 from typing import Callable
 
 from holdup.posture_classifier import Sensitivity
-from holdup.start_with_windows import StartWithWindows
+from holdup.start_at_login import StartAtLogin
 
 
 @dataclass(frozen=True)
@@ -15,6 +15,6 @@ class Actions:
     set_sensitivity: Callable[[Sensitivity], None]  # also keeps the tray menu's mark in step
     camera_names: Callable[[], list[str]]  # cameras plugged in right now
     choose_camera: Callable[[str], None]  # may make the Baseline Stale
-    start_with_windows: StartWithWindows | None  # None when run from source: there is no exe to register
+    start_at_login: StartAtLogin | None  # None when run from source: there is no app to register
     retry_camera: Callable[[], None]  # closes the camera so the next tick reopens it
     set_language: Callable[[str], None]  # saves "en" or "pt" and restarts Holdup in it

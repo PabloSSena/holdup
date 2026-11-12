@@ -1,9 +1,25 @@
 import { useState } from "react";
-import { useI18n } from "./i18n";
-import { DOWNLOAD_URL } from "./links";
-import { isWindows } from "./platform";
+import { useI18n, type Key } from "./i18n";
+import { DOWNLOADS } from "./links";
+import { detectPlatform, type Platform } from "./platform";
 
-const onWindows = isWindows(navigator.userAgent);
+export const PLATFORM = detectPlatform(navigator.userAgent, navigator.maxTouchPoints);
+
+type Link = { href: string; label: Key; click: string };
+
+/** Each OS's main download, and the other build for the same OS. Browsers don't tell Apple Silicon from Intel (Safari
+ * says Intel on both), so Apple Silicon, nearly every Mac sold since 2020, is the main one. */
+const CHOICES: Record<Platform, { main: Link; other?: Link }> = {
+  windows: { main: { href: DOWNLOADS.windows, label: "download.windows", click: "download" } },
+  mac: {
+    main: { href: DOWNLOADS.macAppleSilicon, label: "download.mac", click: "download-mac" },
+    other: { href: DOWNLOADS.macIntel, label: "download.macIntel", click: "download-mac-intel" },
+  },
+  linux: {
+    main: { href: DOWNLOADS.appImage, label: "download.linux", click: "download-appimage" },
+    other: { href: DOWNLOADS.deb, label: "download.deb", click: "download-deb" },
+  },
+};
 
 export function DownloadIcon() {
   return (
@@ -13,18 +29,28 @@ export function DownloadIcon() {
   );
 }
 
-/** "Download for Windows" on Windows; elsewhere the Windows-only note with a Copy link button. */
+/** "Download for Windows / Mac / Linux" for the visitor's OS (plus the other Mac or Linux build); on phones, tablets
+ * and Chromebooks, a note to open the page on a computer, with a Copy link button. */
 export function DownloadButton({ square = false }: { square?: boolean }) {
   const { t } = useI18n();
   const [copied, setCopied] = useState(false);
 
-  if (onWindows)
+  if (PLATFORM) {
+    const { main, other } = CHOICES[PLATFORM];
     return (
-      <a className={`download${square ? " download-square" : ""}`} href={DOWNLOAD_URL} data-goatcounter-click="download">
-        <DownloadIcon />
-        {t("download.button")}
-      </a>
+      <div className="download-group">
+        <a className={`download${square ? " download-square" : ""}`} href={main.href} data-goatcounter-click={main.click}>
+          <DownloadIcon />
+          {t(main.label)}
+        </a>
+        {other && (
+          <a className="download-other" href={other.href} data-goatcounter-click={other.click}>
+            {t(other.label)}
+          </a>
+        )}
+      </div>
     );
+  }
 
   const copy = () => {
     navigator.clipboard?.writeText(location.href).catch(() => {});
@@ -32,8 +58,8 @@ export function DownloadButton({ square = false }: { square?: boolean }) {
     setTimeout(() => setCopied(false), 2200);
   };
   return (
-    <div className={`not-windows${square ? " not-windows-square" : ""}`}>
-      <p>{t("download.notWindows")}</p>
+    <div className={`not-desktop${square ? " not-desktop-square" : ""}`}>
+      <p>{t("download.notDesktop")}</p>
       <button type="button" onClick={copy} aria-live="polite">
         {t(copied ? "download.linkCopied" : "download.copyLink")}
       </button>

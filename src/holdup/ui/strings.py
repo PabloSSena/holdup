@@ -1,22 +1,32 @@
 """English and Brazilian Portuguese copy, from the design. The English text is the key; tr() gives it in the User's
-language: the one chosen in Settings, else the Windows display language (Portuguese, else English)."""
+language: the one chosen in Settings, else the system display language (Portuguese, else English)."""
 import ctypes
+import sys
 from datetime import date
 
-LANGUAGE = "language"  # Store name of the language chosen in Settings ("en" or "pt"); absent follows Windows
+LANGUAGE = "language"  # Store name of the language chosen in Settings ("en" or "pt"); absent follows the system
 LANGUAGES = {"en": "English (US)", "pt": "Português (BR)"}  # each in its own language, as in the design
 
 
-def windows_language() -> str:
-    """Portuguese when the Windows display language is (any region), else English. Not QLocale: it read English in
-    the packaged app on a pt-BR Windows."""
-    try:
+def system_language(platform: str = sys.platform) -> str:
+    """Portuguese when the display language is (any region), else English. Not QLocale on Windows: it read English in
+    the packaged app on a pt-BR Windows. On macOS and Linux QLocale reads the User's preferred languages."""
+    if platform == "win32":
         return "pt" if ctypes.windll.kernel32.GetUserDefaultUILanguage() & 0x3FF == 0x16 else "en"  # LANG_PORTUGUESE
-    except AttributeError:  # not Windows
-        return "en"
+    from PySide6.QtCore import QLocale
+
+    languages = QLocale.system().uiLanguages()
+    return "pt" if languages and languages[0].lower().startswith("pt") else "en"
 
 
-LANG = windows_language()  # tray.py replaces it with the Settings choice before building any window
+def start_at_login_copy(platform: str = sys.platform) -> tuple[str, str]:
+    """The Start at login setting's title and note, in English (the tr() key). Windows users know it by its name."""
+    if platform == "win32":
+        return "Start with Windows", "Holdup starts in the tray when you sign in."
+    return "Start at login", "Holdup starts in the tray when you log in."
+
+
+LANG = system_language()  # tray.py replaces it with the Settings choice before building any window
 
 _PT = {
     # shell and status
@@ -90,6 +100,8 @@ _PT = {
     "Captured today at {}": "Capturada hoje às {}", "Captured {} at {}": "Capturada em {} às {}",
     "Start with Windows": "Iniciar com o Windows",
     "Holdup starts in the tray when you sign in.": "O Holdup abre na bandeja quando você entra no Windows.",
+    "Start at login": "Iniciar ao entrar",
+    "Holdup starts in the tray when you log in.": "O Holdup abre na bandeja quando você entra no computador.",
     "Your camera picture stays with you": "A imagem da sua câmera fica com você",
     "Frames never leave this computer and are never saved. Holdup keeps only numbers, like how many minutes you sat "
     "in Good Posture.":
